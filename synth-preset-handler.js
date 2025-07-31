@@ -228,7 +228,7 @@ class SynthPresetHandler extends HTMLElement {
                 transform: translateX(-50%);
             }
             
-            .button {
+            .synth-button {
                 position: absolute;
                 width: 20px;
                 height: 20px;
@@ -237,7 +237,7 @@ class SynthPresetHandler extends HTMLElement {
                 cursor: pointer;
             }
             
-            .button.on {
+            .synth-button.on {
                 background-color: rgba(0, 255, 0, 0.7);
             }
             
@@ -255,7 +255,7 @@ class SynthPresetHandler extends HTMLElement {
             }
 
             /* Ensure interactive elements stay on top */
-            .knob, .button, .jack {
+            .knob, .button, .synth-button, .jack {
                 z-index: 20; /* Higher than meta overlay */
             }
                     
@@ -551,6 +551,10 @@ class SynthPresetHandler extends HTMLElement {
 
     // Initialize the synthesizer UI
     initSynth() {
+        this.elements.synthContainer.querySelectorAll('.knob').forEach(el => el.remove());
+        this.elements.synthContainer.querySelectorAll('.synth-button').forEach(el => el.remove());
+        this.elements.synthContainer.querySelectorAll('.jack').forEach(el => el.remove());
+
         // Create knobs
         this.synthConfig.knobs.forEach(knobConfig => {
             const knob = document.createElement('div');
@@ -600,7 +604,7 @@ class SynthPresetHandler extends HTMLElement {
         // Create buttons
         this.synthConfig.buttons.forEach(buttonConfig => {
             const button = document.createElement('div');
-            button.className = 'button';
+            button.className = 'synth-button';
             button.id = buttonConfig.id;
             
             if (buttonConfig.state) {
