@@ -485,21 +485,27 @@ class SynthPresetHandler extends HTMLElement {
     initAudio() {
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-        // Audio file input handler
-        this.elements.audioFileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
+        // // Audio file input handler
+        // this.elements.audioFileInput.addEventListener('change', (e) => {
+        //     const file = e.target.files[0];
+        //     if (!file) return;
             
-            this.audioFileName = file.name;
-            this.audioFileType = file.type;
+        //     this.audioFileName = file.name;
+        //     this.audioFileType = file.type;
             
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                this.currentAudioData = event.target.result.split(',')[1];
-                this.decodeAudioData(event.target.result);
-            };
-            reader.readAsDataURL(file);
-        });
+        //     const reader = new FileReader();
+        //     reader.onload = (event) => {
+        //         this.currentAudioData = event.target.result.split(',')[1];
+        //         this.decodeAudioData(event.target.result);
+        //     };
+        //     reader.readAsDataURL(file);
+        // });
+        this.elements.audioAdd.addEventListener('click', () => {
+                this.elements.audioFileInput.click();
+            });
+        this.elements.audioFileInput.addEventListener('change', this.handleAudioUpload.bind(this));
+        this.elements.audioPlay.addEventListener('click', this.playAudio.bind(this));
+        this.elements.audioStop.addEventListener('click', this.stopAudio.bind(this));
     }
   
     async decodeAudioData(dataURL) {
@@ -545,8 +551,6 @@ class SynthPresetHandler extends HTMLElement {
 
     // Initialize the synthesizer UI
     initSynth() {
-        this.initAudio();
-
         // Create knobs
         this.synthConfig.knobs.forEach(knobConfig => {
             const knob = document.createElement('div');
@@ -967,8 +971,8 @@ class SynthPresetHandler extends HTMLElement {
                     }
                     
                     this.audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
-                    this.audioFileName = preset.audio.name;
-                    this.audioFileType = preset.audio.type;
+                    // this.audioFileName = preset.audio.name;
+                    // this.audioFileType = preset.audio.type;
                     
                     this.elements.audioInfo.textContent = preset.audio.name;
                     this.elements.audioPlay.disabled = false;
@@ -1020,8 +1024,7 @@ class SynthPresetHandler extends HTMLElement {
 
     playAudio() {
         if (!this.audioBuffer) return;
-        
-        stopAudio();
+        this.stopAudio();
         
         this.audioSource = this.audioContext.createBufferSource();
         this.audioSource.buffer = this.audioBuffer;
@@ -1035,14 +1038,13 @@ class SynthPresetHandler extends HTMLElement {
             this.audioSource = null;
         }
     }
-             
 
     disconnectedCallback() {
         // Cleanup
         if (this.audioSource) {
-        this.audioSource.stop();
+            this.audioSource.stop();
+        }
     }
-  }
 }
 
 // Register the custom element
