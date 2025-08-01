@@ -14,8 +14,7 @@ class NeutronPresetWidget extends api.NoteContextAwareWidget
 {
     static get parentWidget() { return 'center-pane'; }
 
-    // get position() { return 100; } // higher value means position towards the bottom/right
-    get position() { return 50; } // higher value means position towards the bottom/right
+    get position() { return 100; } // higher value means position towards the bottom/right
 
     isEnabled() 
     {       
@@ -34,8 +33,32 @@ class NeutronPresetWidget extends api.NoteContextAwareWidget
     async refreshWithNote(note) 
     {
         const {content} = await note.getNoteComplement();
+        this.$neutronPresetHandler[0].api = api;
+        console.log('API available?', typeof api !== 'undefined', typeof window.api !== 'undefined');
+        console.log('API available 2?', typeof this.$neutronPresetHandler[0].api !== 'undefined');
+        this.$neutronPresetHandler[0].currentNote = note;
         this.$neutronPresetHandler[0].initSynth();
     }
+
+    async saveData()
+    {
+        const jsonData = {your: "data"}; // Your widget's generated data
+        const jsonString = JSON.stringify(jsonData, null, 2);
+
+        // Create a new note with the JSON content
+        await api.runOnServer(async () => {
+            const {noteId} = api.getActiveContextNote();
+            await api.createNote({
+                parentNoteId: noteId,
+                title: "Widget Data Export",
+                content: jsonString,
+                type: "text",
+                mime: "application/json"
+            });
+        });
+    }
+
+
 }
 
 module.exports = NeutronPresetWidget;

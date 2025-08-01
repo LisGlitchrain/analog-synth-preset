@@ -1,6 +1,7 @@
 class SynthPresetHandler extends HTMLElement {
     constructor() {
         super();
+        this.isTrilium = true;
         this.defineSynthConfig();
         this.defineVariables();
   
@@ -25,6 +26,8 @@ class SynthPresetHandler extends HTMLElement {
         this.audioFileName = '';
         this.audioFileType = '';
         this.currentAudioData = null; // Will store base64 encoded audio
+        this.api = window.api;
+        this.currentNote = null;
     }
 
     defineSynthConfig()
@@ -480,6 +483,7 @@ class SynthPresetHandler extends HTMLElement {
         this.initAudio();
         this.initSynth();
         this.initEventListeners();
+        this.elements.synthImage.src = "http://127.0.0.1:37840/custom/synth/synth-background.jpg";
     }
 
     initAudio() {
@@ -535,6 +539,7 @@ class SynthPresetHandler extends HTMLElement {
             presetNumber:     this.shadowRoot.getElementById('preset-number'),
             presetName:       this.shadowRoot.getElementById('preset-name'),
             presetDate:       this.shadowRoot.getElementById('preset-date'),
+            presetNotes:       this.shadowRoot.getElementById('preset-notes'),
             //Preset controls
             savePresetBtn:    this.shadowRoot.getElementById('save-preset'),
             loadPresetBtn:    this.shadowRoot.getElementById('load-preset'),
@@ -706,6 +711,7 @@ class SynthPresetHandler extends HTMLElement {
                     author: this.elements.presetAuthor.value || 'Anonymous',
                     number: parseInt(this.elements.presetNumber.value) || 1,
                     name: this.elements.presetName.value || 'Unnamed Preset',
+                    notes: this.elements.presetNotes.value || '',
                     date: new Date().toISOString()
                 },
                 knobs: this.synthConfig.knobs.map(k => ({ id: k.id, value: k.value })),
@@ -717,22 +723,43 @@ class SynthPresetHandler extends HTMLElement {
                     data: this.currentAudioData
                 } : null
             };
-            
-            const presetStr = JSON.stringify(preset, null, 2);
-            const blob = new Blob([presetStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.href = url;
+
             let presetName = preset.meta.author + '_' + preset.meta.name;
             presetName = this.sanitizePath(presetName);
             if(presetName.length === 0)
                 presetName = 'neutron-preset';
-            a.download = presetName + '.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            presetName = presetName + '.ntr';
+            
+            const presetStr = JSON.stringify(preset, null, 2);
+            if(this.isTrilium)
+            {
+                const parentNote = api.getActiveContextNote();      
+                this.api.runOnBackend((parentId, presetName, jsonString) =>
+                    {
+                        // Create a new note with the JSON content
+                        const newNote = api.createNewNote({
+                            parentNoteId: parentId,
+                            title: presetName, // Name it as a JSON file
+                            type: "file", // Important for file downloads
+                            mime: "application/json", // Set MIME type
+                            content: jsonString, // The actual JSON data
+                        }); 
+                    }, [parentNote.noteId, presetName, presetStr]);
+            }
+            else
+            {
+                const blob = new Blob([presetStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = presetName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                console.log("URL to download: " + url);
+                URL.revokeObjectURL(url);
+            }
         });
     }
 
@@ -740,20 +767,20 @@ class SynthPresetHandler extends HTMLElement {
     updateAllPositions() {
         this.synthConfig.knobs.forEach(knobConfig => {
             const knob = this.shadowRoot.getElementById(knobConfig.id);
-            if (knob) updateKnobPosition(knob, knobConfig);
+            if (knob) this.updateKnobPosition(knob, knobConfig);
         });
         
         this.synthConfig.buttons.forEach(buttonConfig => {
             const button = this.shadowRoot.getElementById(buttonConfig.id);
-            if (button) updateButtonPosition(button, buttonConfig);
+            if (button) this.updateButtonPosition(button, buttonConfig);
         });
         
         this.synthConfig.jacks.forEach(jackConfig => {
             const jack = this.shadowRoot.getElementById(jackConfig.id);
-            if (jack) updateJackPosition(jack, jackConfig);
+            if (jack) this.updateJackPosition(jack, jackConfig);
         });
         
-        updateConnections();
+        this.updateConnections();
     }
 
     updateKnobPosition(knob, config) {
@@ -914,12 +941,14 @@ class SynthPresetHandler extends HTMLElement {
                 this.elements.presetNumber.value = preset.meta.number || 1;
                 this.elements.presetName.value = preset.meta.name || '';
                 this.elements.presetDate.innerText = preset.meta.date || '';
+                this.elements.presetNotes.value = preset.meta.notes || '';
             } else {
                 // Default values if loading old preset without metadata
                 this.elements.presetAuthor.value = '';
                 this.elements.presetNumber.value = 1;
                 this.elements.presetName.value = '';
                 this.elements.presetDate.value = '';
+                this.elements.presetNotes.value = '';
             }
 
             // Load knobs
