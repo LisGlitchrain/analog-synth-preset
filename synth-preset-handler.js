@@ -334,7 +334,6 @@ class SynthPresetHandler extends HTMLElement {
                 border-radius: 4px;
                 cursor: pointer;
             }
-        
             
             button:hover {
                 background-color: #555;
@@ -354,7 +353,7 @@ class SynthPresetHandler extends HTMLElement {
 
             #audio-controls button {
                 height: 100%;
-                width: 10%;
+                width: 6%;
                 margin: 0 5px;
                 padding: 5px 0px;
             }
@@ -478,10 +477,10 @@ class SynthPresetHandler extends HTMLElement {
             </div>
 
             <div id="audio-controls">
-                <button id="audio-add">Add Audio Sample</button>
+                <button id="audio-add">Add Audio</button>
                 <input type="file" id="audio-file" accept=".mp3,.ogg,.wav" style="display: none;">
-                <button id="audio-play" disabled>Play Sample</button>
-                <button id="audio-stop" disabled>Stop Sample</button>
+                <button id="audio-play" disabled>Play</button>
+                <button id="audio-stop" disabled>Stop</button>
                 <span id="audio-info">No sample loaded</span>
             </div>
 
@@ -864,6 +863,9 @@ class SynthPresetHandler extends HTMLElement {
                     
                     if (true) {
                         cable.classList.add('curved');
+                        cable.style.position = 'absolute';
+                        cable.style.left = 0;
+                        cable.style.top = 0;
                         let fromXCorrected = fromX;
                         let toXCorrected = toX;
                         let fromYCorrected = fromY;
@@ -931,8 +933,9 @@ class SynthPresetHandler extends HTMLElement {
         path.setAttribute('stroke-linecap', 'round');
         
         svg.appendChild(path);
-        this.elements.synthContainer.appendChild(svg);
-        this.cables.push(svg);
+        // this.elements.synthContainer.appendChild(svg);
+        cable.appendChild(svg);
+        // this.cables.push(svg);
     }
 
     sanitizePath(path) {
