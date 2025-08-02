@@ -862,9 +862,21 @@ class SynthPresetHandler extends HTMLElement {
                     // Choose between straight or curved cable randomly
                     const useCurved = Math.random() > 0.5;
                     
-                    if (false) {
+                    if (true) {
                         cable.classList.add('curved');
-                        this.createCurvedCable(cable, fromX, fromY, toX, toY, wireColors[colorIndex]);
+                        let fromXCorrected = fromX;
+                        let toXCorrected = toX;
+                        let fromYCorrected = fromY;
+                        let toYCorrected = toY;
+                        if(fromX > toX)
+                        {
+                            fromXCorrected = toX;
+                            toXCorrected = fromX;
+                            fromYCorrected = toY;
+                            toYCorrected = fromY;
+                        }
+
+                        this.createCurvedCable(cable, fromXCorrected, fromYCorrected, toXCorrected, toYCorrected, wireColors[colorIndex]);
                     } else {
                         this.createStraightCable(cable, fromX, fromY, toX, toY);
                     }
