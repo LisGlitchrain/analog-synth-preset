@@ -7,7 +7,7 @@
 const TPL = `
 <div style="padding: 10px; border-top: 1px solid var(--main-border-color); contain: none;>
     <script src="http://127.0.0.1:37840/custom/synth/synth-preset-handler.js"></script>
-    <synth-preset-handler></synth-preset-handler>
+    <synth-preset-handler isTrilium='true'></synth-preset-handler>
 </div>`;
 
 class NeutronPresetWidget extends api.NoteContextAwareWidget 
@@ -18,47 +18,176 @@ class NeutronPresetWidget extends api.NoteContextAwareWidget
 
     isEnabled() 
     {       
-        return super.isEnabled()  && this.note.hasLabel('neutronPresetWidget')
+        return super.isEnabled()
             && (
-            ((this.note.type === 'text' || this.note.type === 'book')) || (this.note.type === 'file' && this.note.mime === "application/json"));
+            ((this.note.type === 'text' || this.note.type === 'book')  && this.note.hasLabel('neutronPresetWidget')) || (this.note.type === 'file' && this.note.mime === "application/x-neutron-preset-json"));
     }
 
     doRender() 
     {
         this.$widget = $(TPL);
         this.$neutronPresetHandler = this.$widget.find('synth-preset-handler');
+        this.$comboAttachments = this.$widget.find("#comboAttachments");
+
+        this.comboAttachmentsOnChangeListenerIsAdded = false;
         return this.$widget;
     }
 
     async refreshWithNote(note) 
     {
+        if(!this.comboAttachmentsOnChangeListenerIsAdded && this.$neutronPresetHandler[0].isInitialized)
+        {
+            this.$neutronPresetHandler[0].elements.presetComboAttachment.onchange = (event) => this.loadlPresetFromComboAttachment(event);
+            this.comboAttachmentsOnChangeListenerIsAdded = true;
+        }
+
         const {content} = await note.getNoteComplement();
         this.$neutronPresetHandler[0].api = api;
-        console.log('API available?', typeof api !== 'undefined', typeof window.api !== 'undefined');
-        console.log('API available 2?', typeof this.$neutronPresetHandler[0].api !== 'undefined');
         this.$neutronPresetHandler[0].currentNote = note;
         this.$neutronPresetHandler[0].initSynth();
-    }
 
-    async saveData()
+        await this.fillDropdownWithOptions(note);
+    }
+    
+    async fillDropdownWithOptions(note)
     {
-        const jsonData = {your: "data"}; // Your widget's generated data
-        const jsonString = JSON.stringify(jsonData, null, 2);
+        const optionsTemplate = "<option value=\"$$VALUE_REPLACER$$\">$$TEXT_REPLACER$$</option>";
+        const valueReplacer = "$$VALUE_REPLACER$$";
+        const textReplacer = "$$TEXT_REPLACER$$";
+        
+        this.attachments = await note.getAttachments();
+        this.currentNoteId = note.noteId;
+        var loadingOptions = "";
+        const currentNoteIsNeutronPresetFile = note.type == "file" && (note.mime == "application/x-neutron-preset-json");
+        if(currentNoteIsNeutronPresetFile)
+        {
+           const midiName = note.title;
+           loadingOptions = loadingOptions + optionsTemplate.replace(valueReplacer, "CURRENT_NOTE_" + midiName).replace(textReplacer, midiName);
+        }
 
-        // Create a new note with the JSON content
-        await api.runOnServer(async () => {
-            const {noteId} = api.getActiveContextNote();
-            await api.createNote({
-                parentNoteId: noteId,
-                title: "Widget Data Export",
-                content: jsonString,
-                type: "text",
-                mime: "application/json"
-            });
-        });
+        loadingOptions = loadingOptions + optionsTemplate.replace(valueReplacer, "").replace(textReplacer, "select file");
+        for(var j = 0; j < this.attachments.length; j++)
+        {
+            const attachmentTitle = this.attachments[j].title;
+            if(attachmentTitle.endsWith(".ntr"))
+            {
+                const midiName = attachmentTitle;
+                if(midiName == "")
+                    continue;
+                const optionToAdd = optionsTemplate.replace(valueReplacer, "ATTACHMENT_" + midiName).replace(textReplacer, midiName);
+                loadingOptions = loadingOptions + optionToAdd;
+            }
+        }
+        
+        var childNotes = await this.note.getChildNotes();
+        for(j = 0; j < childNotes.length; j++)
+        {
+        	const childText = childNotes[j].getNoteComplement();
+            const attachmentTitle = childNotes[j].title;
+            if(attachmentTitle.endsWith(".ntr"))
+            {
+                const midiName = attachmentTitle;
+                if(midiName == "")
+                    continue;
+                const optionToAdd = optionsTemplate.replace(valueReplacer, "FILE_CHILD_" + midiName).replace(textReplacer, midiName);
+                loadingOptions = loadingOptions + optionToAdd;
+            }
+        }
+
+        var attributes = note.getAttributes();
+        var noteId =  note.id;
+        this.neutronPresetSpecialURLPath = note.getLabelValue("neutronPresetSpecialURLPath");
+        var neutronPresetSpecialURLNames = note.getLabelValue("neutronPresetSpecialURLNames");
+        if(neutronPresetSpecialURLNames != undefined)
+        {
+            neutronPresetSpecialURLNames = neutronPresetSpecialURLNames.trim();
+            var splittedMidiURLNames = neutronPresetSpecialURLNames.split(";");
+            for(var i = 0; i < splittedMidiURLNames.length; i++)
+            {
+                const midiName = splittedMidiURLNames[i].trim();
+                if(midiName == "")
+                    continue;
+                const optionToAdd = optionsTemplate.replace(valueReplacer, "CUSTOM_RESOURCE_" + midiName).replace(textReplacer, midiName);
+                loadingOptions = loadingOptions + optionToAdd;
+            }
+        }
+                 
+        this.$neutronPresetHandler[0].elements.presetComboAttachment.innerHTML = loadingOptions;
+        
+        if(currentNoteIsNeutronPresetFile)
+        {
+            const path = "http://127.0.0.1:37840/api/notes/" + this.note.noteId + "/download?";
+        	console.log("loading URL: " + path);
+        	this.$neutronPresetHandler[0].loadFileURL(path); 
+        }    
     }
 
+    async loadlPresetFromComboAttachment(event)
+    {
+        const value = event.target.value;  
+        if(value != "")
+        {
+            if(value.startsWith("CURRENT_NOTE_"))
+            {
+               const path = "http://127.0.0.1:37840/api/notes/" + this.note.noteId + "/download?";
+               //const path = "#root/api/notes/" + this.note.noteId + "/download?";
+               console.log("loading URL: " + path);
+               this.$neutronPresetHandler[0].loadFileURL(path);
+            }
+            else if(value.startsWith("ATTACHMENT_"))
+            {
+                const compareValue = value.replace("ATTACHMENT_", "");
+                for(var i = 0; i < this.note.attachments.length; i++)
+                {
+                    if(compareValue == this.note.attachments[i].title)
+                    {
+                        const path = "http://127.0.0.1:37840/api/attachments/" + this.note.attachments[i].attachmentId + "/download?";
+                        console.log("loading URL: " + path);
+                        this.$neutronPresetHandler[0].loadFileURL(path);
+                        break;
+                    }
+                }
+            }
+            else if(value.startsWith("FILE_CHILD_"))
+            {
+                const compareValue = value.replace("FILE_CHILD_", "");
+                var childNotes = await this.note.getChildNotes();
+                for(i = 0; i < childNotes.length; i++)
+                {
+                    if(compareValue == childNotes[i].title)
+                    {
+                        const path = "http://127.0.0.1:37840/api/notes/" + childNotes[i].noteId + "/download?";
+                        console.log("loading URL: " + path);
+                        this.$neutronPresetHandler[0].loadFileURL(path);
+                        break;
+                    }
+                }
+            }
+            else if(value.startsWith("CUSTOM_RESOURCE_"))
+            {
+                const unwrappedPath = value.replace("CUSTOM_RESOURCE_", "");
+                const path = "http://127.0.0.1:37840/custom/" + this.neutronPresetSpecialURLPath + unwrappedPath;
+            	console.log("loading URL: " + path);
+            	this.$neutronPresetHandler[0].loadFileURL(path);
+            }
+        }
+        console.log(value);
+    }
 
+    // async copyToClipboard()
+    // {
+    //     const jsonData = {your: "data"}; // Your widget's generated data
+    //     const jsonString = JSON.stringify(jsonData, null, 2);
+
+    //     const textarea = document.createElement("textarea");
+    //     textarea.value = jsonString;
+    //     document.body.appendChild(textarea);
+    //     textarea.select();
+    //     document.execCommand("copy");
+    //     document.body.removeChild(textarea);
+        
+    //     await api.showMessage("Neutron preset is copied to clipboard! Save it to text file with .ntr extension on disk");
+    // }
 }
 
 module.exports = NeutronPresetWidget;

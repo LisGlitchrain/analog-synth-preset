@@ -1,14 +1,14 @@
 class SynthPresetHandler extends HTMLElement {
     constructor() {
         super();
-        this.isTrilium = true;
+        this.isTrilium = this.getAttribute('isTrilium') || false;
         this.defineSynthConfig();
         this.defineVariables();
   
         // Shadow DOM for encapsulation
         this.attachShadow({ mode: 'open' });
         this.connectedCallback();
-        console.log("Contructor!");
+        this.m_isInitialized = true;
     }
 
     defineVariables()
@@ -193,8 +193,13 @@ class SynthPresetHandler extends HTMLElement {
         };
     }
 
+    get isInitialized()
+    {
+        return this.m_isInitialized;
+    }
+
     connectedCallback() {
-        this.shadowRoot.innerHTML = `
+        let template = `
         <style scoped>
         #synth-container {
             position: relative;
@@ -448,7 +453,7 @@ class SynthPresetHandler extends HTMLElement {
         
         <div id="synth-container">
             <!-- Background image of the synthesizer -->
-            <img id="synth-image" src="synth-background.png" alt="Synthesizer">
+            <img id="synth-image" src="synth-background.jpg" alt="Synthesizer">
             <!-- Metadata -->
             <span id="preset-date" placeholder=""></span>  
             <input type="text" id="preset-author" placeholder="Author name">
@@ -460,17 +465,13 @@ class SynthPresetHandler extends HTMLElement {
                 <button id="save-preset">Save Preset</button>
                 <button id="load-preset">Load Preset</button>
                 <input type="file" id="preset-file" accept=".json" style="display: none;">
-                <select id="comboAttachments" title="Select file from attachment, subtree notes or custom resource to load.">
-                    <option>TEST_OPT_1</option>
-                    <option>TEST_OPT_2</option>
-                </select>
             </div>
 
             <div id="audio-controls">
-                <button id="add-audio">Add Audio Sample</button>
+                <button id="audio-add">Add Audio Sample</button>
                 <input type="file" id="audio-file" accept=".mp3,.ogg,.wav" style="display: none;">
-                <button id="play-audio" disabled>Play Sample</button>
-                <button id="stop-audio" disabled>Stop Sample</button>
+                <button id="audio-play" disabled>Play Sample</button>
+                <button id="audio-stop" disabled>Stop Sample</button>
                 <span id="audio-info">No sample loaded</span>
             </div>
 
@@ -478,32 +479,22 @@ class SynthPresetHandler extends HTMLElement {
         </div>
         `;
         
+        if(this.isTrilium)
+        {
+            template = template.replace('synth-background.jpg', "http://127.0.0.1:37840/custom/synth/synth-background.jpg");
+            template = template.replace('<input type="file" id="preset-file" accept=".json" style="display: none;">', '<input type="file" id="preset-file" accept=".json" style="display: none;"><select id="comboAttachments" title="Select file from attachment, subtree notes or custom resource to load."></select>');
+        }
+        this.shadowRoot.innerHTML = template;
+
         // Initialize components
         this.cacheHTMLElements();
         this.initAudio();
         this.initSynth();
         this.initEventListeners();
-        this.elements.synthImage.src = "http://127.0.0.1:37840/custom/synth/synth-background.jpg";
     }
 
     initAudio() {
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-        // // Audio file input handler
-        // this.elements.audioFileInput.addEventListener('change', (e) => {
-        //     const file = e.target.files[0];
-        //     if (!file) return;
-            
-        //     this.audioFileName = file.name;
-        //     this.audioFileType = file.type;
-            
-        //     const reader = new FileReader();
-        //     reader.onload = (event) => {
-        //         this.currentAudioData = event.target.result.split(',')[1];
-        //         this.decodeAudioData(event.target.result);
-        //     };
-        //     reader.readAsDataURL(file);
-        // });
         this.elements.audioAdd.addEventListener('click', () => {
                 this.elements.audioFileInput.click();
             });
@@ -539,18 +530,18 @@ class SynthPresetHandler extends HTMLElement {
             presetNumber:     this.shadowRoot.getElementById('preset-number'),
             presetName:       this.shadowRoot.getElementById('preset-name'),
             presetDate:       this.shadowRoot.getElementById('preset-date'),
-            presetNotes:       this.shadowRoot.getElementById('preset-notes'),
+            presetNotes:      this.shadowRoot.getElementById('preset-notes'),
             //Preset controls
             savePresetBtn:    this.shadowRoot.getElementById('save-preset'),
             loadPresetBtn:    this.shadowRoot.getElementById('load-preset'),
             presetFileInput:  this.shadowRoot.getElementById('preset-file'),
+            presetComboAttachment: this.shadowRoot.getElementById('comboAttachments'),
             //Audio controls
             audioFileInput:   this.shadowRoot.getElementById('audio-file'),
-            audioAdd:         this.shadowRoot.getElementById('add-audio'),
+            audioAdd:         this.shadowRoot.getElementById('audio-add'),
             audioInfo:        this.shadowRoot.getElementById('audio-info'),
-            audioPlay:        this.shadowRoot.getElementById('play-audio'),
-            audioStop:        this.shadowRoot.getElementById('stop-audio'),
-
+            audioPlay:        this.shadowRoot.getElementById('audio-play'),
+            audioStop:        this.shadowRoot.getElementById('audio-stop'),
         };
     }
 
@@ -565,6 +556,7 @@ class SynthPresetHandler extends HTMLElement {
             const knob = document.createElement('div');
             knob.className = 'knob';
             knob.id = knobConfig.id;
+            knob.title = knobConfig.id;
             
             const marker = document.createElement('div');
             marker.className = 'knob-marker';
@@ -611,7 +603,8 @@ class SynthPresetHandler extends HTMLElement {
             const button = document.createElement('div');
             button.className = 'synth-button';
             button.id = buttonConfig.id;
-            
+            button.title = buttonConfig.id;
+
             if (buttonConfig.state) {
                 button.classList.add('on');
             }
@@ -630,7 +623,8 @@ class SynthPresetHandler extends HTMLElement {
             const jack = document.createElement('div');
             jack.className = 'jack';
             jack.id = jackConfig.id;
-            
+            jack.title = jackConfig.id;
+
             this.elements.synthContainer.appendChild(jack);
             this.updateJackPosition(jack, jackConfig);
             
@@ -741,7 +735,7 @@ class SynthPresetHandler extends HTMLElement {
                             parentNoteId: parentId,
                             title: presetName, // Name it as a JSON file
                             type: "file", // Important for file downloads
-                            mime: "application/json", // Set MIME type
+                            mime: "application/x-neutron-preset-json", // Set MIME type
                             content: jsonString, // The actual JSON data
                         }); 
                     }, [parentNote.noteId, presetName, presetStr]);
@@ -927,6 +921,27 @@ class SynthPresetHandler extends HTMLElement {
 
         // Replace disallowed characters with a hyphen
         return path.replace(disallowedCharsRegex, '-');
+    }
+
+    //Used to load preset from TriliumNext Notes
+    async loadFileURL(url)
+    {
+        try {
+            // First fetch the response
+            const response = await fetch(url);
+
+            // Check if the request was successful
+            if (!response.ok) 
+            {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            // Parse the response as JSON
+            const jsonData = await response.json();
+        this.loadPreset(jsonData);
+        } catch (error) {
+            console.error('Error loading JSON:', error);
+        }
     }
 
     // Complete loadPreset function
