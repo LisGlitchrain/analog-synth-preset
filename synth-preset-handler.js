@@ -312,6 +312,15 @@ class SynthPresetHandler extends HTMLElement {
                 left: 45%;
                 width: 30%;
                 height: 100%;
+                text-align: left;
+                padding: 0.5%;
+                background: #333;
+                border-radius: 5px;
+                color: #FFFFFF;
+            }
+
+            option {
+                color: #FFFFFF;
             }
 
             button {
@@ -415,7 +424,8 @@ class SynthPresetHandler extends HTMLElement {
                 z-index: 10;
                 font-size: 1.1em;
                 border: 0px solid #444;
-                max-width: 10%;
+                width: 13.5%;
+                max-width: 13.5%;
             }
 
             #preset-name{
