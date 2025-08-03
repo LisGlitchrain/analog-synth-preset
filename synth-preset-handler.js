@@ -1,15 +1,75 @@
-class SynthPresetHandler extends HTMLElement {
-    constructor() {
+class SynthPresetHandler extends HTMLElement 
+{
+    constructor() 
+    {
         super();
-        this.isTrilium = this.getAttribute('isTrilium') || false;
-        this.defineSynthConfig();
-        this.defineVariables();
-  
         // Shadow DOM for encapsulation
         this.attachShadow({ mode: 'open' });
-        this.connectedCallback();
-        this.m_isInitialized = true;
+        // Default config (fallback)
+        this.synthConfig = this._getDefaultConfig();
     }
+
+    // Allow external config via property
+    set config(value) 
+    {
+        this.synthConfig = this.processConfig(value);
+        this.connectedCallback();
+    }
+
+    _getDefaultConfig() {
+        return { knobs: [], buttons: [], jacks: [] }; // Your original defaults
+    }
+
+    mainInit()
+    {
+        // this.isTrilium = this.getAttribute('isTrilium') || false;
+        this.isTrilium = this.getAttribute('isTrilium');
+        this.configId = this.getAttribute('configId');
+        console.log('isTrilium: ' + this.isTrilium);
+        console.log('configId: ' + this.configId);
+        if (this.configId) 
+        {
+            const configEl = document.getElementById(this.configId);
+            console.log('configEl: ' + configEl);
+            if (configEl) 
+            {
+                // const jsonString = JSON.stringify(configEl.textContent);
+                const jsonData = JSON.parse(configEl.textContent);
+                this.synthConfig = this.processConfig(jsonData);
+            }
+        }
+        this.defineVariables();
+    }
+
+    processConfig(config) 
+    {
+        console.log("Processing from config!");
+
+        console.log('config props: ' + Object.keys(config).length);
+        console.log('config type: ' + typeof config);
+
+        const vars = config._vars || {};
+        const replacer = (_, key) => vars[key] !== undefined ? vars[key] : _;
+        
+        const processObject = (obj) => {
+            return Object.fromEntries(
+                Object.entries(obj).map(([k, v]) => {
+                    if (typeof v === 'string' && v.startsWith("{{")) {
+                        return [k, parseFloat(v.replace(/\{\{(\w+)\}\}/g, replacer))];
+                    }
+                    return [k, v];
+                })
+            );
+        };
+        return {
+            ...config,
+            backgroundImagePath: config.backgroundImagePath,
+            knobs: config.knobs.map(processObject),
+            buttons: config.buttons.map(processObject),
+            jacks: config.jacks.map(processObject)
+        };
+    }
+
 
     defineVariables()
     {
@@ -30,168 +90,168 @@ class SynthPresetHandler extends HTMLElement {
         this.currentNote = null;
     }
 
-    defineSynthConfig()
-    {
-        //SYNTH CONFIG (KNOBS, BUTTONS, JACKS)
-        const ocsY = 0.576;
-        const ocs1ParamX = 0.050;
-        const ocs2ParamX = 0.1685;
-        const row0Y      = 0.862;
-        const row1Y      = 0.730;
-        const row2Y      = 0.60;
-        const row3Y      = 0.468;
-        const column0X   = 0.262;
-        const column1X   = 0.3235;
-        const column2X   = 0.385;
-        const column3X   = 0.4468;
-        const column4X   = 0.5085;
-        const column5X   = 0.57;
-        const column6X   = 0.6315;
-        const column7X   = 0.6933;
+    // defineSynthConfig()
+    // {
+    //     //SYNTH CONFIG (KNOBS, BUTTONS, JACKS)
+    //     const ocsY = 0.576;
+    //     const ocs1ParamX = 0.050;
+    //     const ocs2ParamX = 0.1685;
+    //     const row0Y      = 0.862;
+    //     const row1Y      = 0.730;
+    //     const row2Y      = 0.60;
+    //     const row3Y      = 0.468;
+    //     const column0X   = 0.262;
+    //     const column1X   = 0.3235;
+    //     const column2X   = 0.385;
+    //     const column3X   = 0.4468;
+    //     const column4X   = 0.5085;
+    //     const column5X   = 0.57;
+    //     const column6X   = 0.6315;
+    //     const column7X   = 0.6933;
 
-        const jackColumn0X = 0.7627;
-        const jackColumn1X = 0.7965666667;
-        const jackColumn2X = 0.8304333333;
-        const jackColumn3X = 0.8643;
-        const jackColumn4X = 0.8981666667;
-        const jackColumn5X = 0.9320333333;
-        const jackColumn6X = 0.9659;
+    //     const jackColumn0X = 0.7627;
+    //     const jackColumn1X = 0.7965666667;
+    //     const jackColumn2X = 0.8304333333;
+    //     const jackColumn3X = 0.8643;
+    //     const jackColumn4X = 0.8981666667;
+    //     const jackColumn5X = 0.9320333333;
+    //     const jackColumn6X = 0.9659;
 
-        const jackRow0Y = 0.495;
-        const jackRow1Y = 0.5535714286;
-        const jackRow2Y = 0.6121428571;
-        const jackRow3Y = 0.6707142857;
-        const jackRow4Y = 0.7292857143;
-        const jackRow5Y = 0.7878571428;
-        const jackRow6Y = 0.8464285714;
-        const jackRow7Y = 0.905;
+    //     const jackRow0Y = 0.495;
+    //     const jackRow1Y = 0.5535714286;
+    //     const jackRow2Y = 0.6121428571;
+    //     const jackRow3Y = 0.6707142857;
+    //     const jackRow4Y = 0.7292857143;
+    //     const jackRow5Y = 0.7878571428;
+    //     const jackRow6Y = 0.8464285714;
+    //     const jackRow7Y = 0.905;
 
-        // Configuration for our synthesizer elements
-        this.synthConfig = {
-            // These positions are relative to the synth image dimensions
-            // You'll need to adjust these based on your actual synth image
-            knobs: [
-                { id: 'osc1-tune',     x: ocs1ParamX,  y: ocsY,  value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'osc1-shape',    x: ocs1ParamX,  y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'osc1-width',    x: ocs1ParamX,  y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'osc2-tune',     x: ocs2ParamX,  y: ocsY,  value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'osc2-shape',    x: ocs2ParamX,  y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'osc2-width',    x: ocs2ParamX,  y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'osc-mix',       x: 0.109,       y: 0.5145,value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'vcf-freq',      x: column0X,    y: row3Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'vcf-reso',      x: column0X,    y: row2Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'vcf-mod-depth', x: column0X,    y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'vcf-env-depth', x: column0X,    y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'lfo-shape',     x: 0.354,       y: ocsY,  value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'lfo-rate',      x: column2X,    y: row3Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'noise',         x: column1X,    y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'vca-bias',      x: column1X,    y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'env1-attack',   x: column2X,    y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'env1-decay',    x: column3X,    y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'env1-sustain',  x: column4X,    y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'env1-release',  x: column5X,    y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'env2-attack',   x: column2X,    y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'env2-decay',    x: column3X,    y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'env2-sustain',  x: column4X,    y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'env2-release',  x: column5X,    y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'delay-time',    x: column3X,    y: row3Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'delay-repeats', x: column4X,    y: row3Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'delay-mix',     x: column5X,    y: row3Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'od-drive',      x: column3X,    y: row2Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'od-tone',       x: column4X,    y: row2Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'od-level',      x: column5X,    y: row2Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'output-volume', x: column6X,    y: row3Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'sh-rate',       x: column6X,    y: row2Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'sh-glide',      x: column7X,    y: row2Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'srl-slew',      x: column6X,    y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'srl-time',      x: column7X,    y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'attenuator1',   x: column6X,    y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 },
-                { id: 'attenuator2',   x: column7X,    y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 }
-            ],
+    //     // Configuration for our synthesizer elements
+    //     this.synthConfig = {
+    //         // These positions are relative to the synth image dimensions
+    //         // You'll need to adjust these based on your actual synth image
+    //         knobs: [
+    //             { id: 'osc1-tune',     x: ocs1ParamX,  y: ocsY,  value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'osc1-shape',    x: ocs1ParamX,  y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'osc1-width',    x: ocs1ParamX,  y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'osc2-tune',     x: ocs2ParamX,  y: ocsY,  value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'osc2-shape',    x: ocs2ParamX,  y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'osc2-width',    x: ocs2ParamX,  y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'osc-mix',       x: 0.109,       y: 0.5145,value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'vcf-freq',      x: column0X,    y: row3Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'vcf-reso',      x: column0X,    y: row2Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'vcf-mod-depth', x: column0X,    y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'vcf-env-depth', x: column0X,    y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'lfo-shape',     x: 0.354,       y: ocsY,  value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'lfo-rate',      x: column2X,    y: row3Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'noise',         x: column1X,    y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'vca-bias',      x: column1X,    y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'env1-attack',   x: column2X,    y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'env1-decay',    x: column3X,    y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'env1-sustain',  x: column4X,    y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'env1-release',  x: column5X,    y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'env2-attack',   x: column2X,    y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'env2-decay',    x: column3X,    y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'env2-sustain',  x: column4X,    y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'env2-release',  x: column5X,    y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'delay-time',    x: column3X,    y: row3Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'delay-repeats', x: column4X,    y: row3Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'delay-mix',     x: column5X,    y: row3Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'od-drive',      x: column3X,    y: row2Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'od-tone',       x: column4X,    y: row2Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'od-level',      x: column5X,    y: row2Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'output-volume', x: column6X,    y: row3Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'sh-rate',       x: column6X,    y: row2Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'sh-glide',      x: column7X,    y: row2Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'srl-slew',      x: column6X,    y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'srl-time',      x: column7X,    y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'attenuator1',   x: column6X,    y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+    //             { id: 'attenuator2',   x: column7X,    y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 }
+    //         ],
             
-            buttons: [
-                { id: 'osc1-range-8',       x: 0.108,  y: 0.655,  state: false },
-                { id: 'osc1-range-16',      x: 0.108,  y: 0.687,  state: false }  ,
-                { id: 'osc1-range-32',      x: 0.108,  y: 0.721,  state: false },
-                { id: 'osc2-range-8',       x: 0.1345, y: 0.655,  state: false },
-                { id: 'osc2-range-16',      x: 0.1345, y: 0.687,  state: false },
-                { id: 'osc2-range-32',      x: 0.1345, y: 0.721,  state: false },
-                { id: 'osc-sync',           x: 0.12,   y: 0.84,   state: false },
-                { id: 'paraphonic',         x: 0.12,   y: 0.9,    state: false },
-                { id: 'vcf-mode-low-cut',   x: 0.235,  y: 0.54,   state: true  },
-                { id: 'vcf-mode-band-pass', x: 0.235,  y: 0.568,  state: false },
-                { id: 'vcf-mode-high-cut',  x: 0.235,  y: 0.596,  state: false },
-                { id: 'vcf-key-track',      x: 0.2745, y: 0.695,  state: false },
-                { id: 'lfo-key-sync',       x: 0.336,  y: 0.491,  state: false },
-            ],
+    //         buttons: [
+    //             { id: 'osc1-range-8',       x: 0.108,  y: 0.655,  state: false },
+    //             { id: 'osc1-range-16',      x: 0.108,  y: 0.687,  state: false }  ,
+    //             { id: 'osc1-range-32',      x: 0.108,  y: 0.721,  state: false },
+    //             { id: 'osc2-range-8',       x: 0.1345, y: 0.655,  state: false },
+    //             { id: 'osc2-range-16',      x: 0.1345, y: 0.687,  state: false },
+    //             { id: 'osc2-range-32',      x: 0.1345, y: 0.721,  state: false },
+    //             { id: 'osc-sync',           x: 0.12,   y: 0.84,   state: false },
+    //             { id: 'paraphonic',         x: 0.12,   y: 0.9,    state: false },
+    //             { id: 'vcf-mode-low-cut',   x: 0.235,  y: 0.54,   state: true  },
+    //             { id: 'vcf-mode-band-pass', x: 0.235,  y: 0.568,  state: false },
+    //             { id: 'vcf-mode-high-cut',  x: 0.235,  y: 0.596,  state: false },
+    //             { id: 'vcf-key-track',      x: 0.2745, y: 0.695,  state: false },
+    //             { id: 'lfo-key-sync',       x: 0.336,  y: 0.491,  state: false },
+    //         ],
             
-            jacks: [
-                { id: 'in-osc1',       x: jackColumn0X, y: jackRow0Y, connections: [] },
-                { id: 'in-osc2',       x: jackColumn1X, y: jackRow0Y, connections: [] },
-                { id: 'in-osc12',      x: jackColumn2X, y: jackRow0Y, connections: [] },
-                { id: 'in-invert-in',  x: jackColumn3X, y: jackRow0Y, connections: [] },
-                { id: 'out-ocs1',      x: jackColumn4X, y: jackRow0Y, connections: [] },
-                { id: 'out-ocs2',      x: jackColumn5X, y: jackRow0Y, connections: [] },
-                { id: 'out-ocs-mix',   x: jackColumn6X, y: jackRow0Y, connections: [] },
+    //         jacks: [
+    //             { id: 'in-osc1',       x: jackColumn0X, y: jackRow0Y, connections: [] },
+    //             { id: 'in-osc2',       x: jackColumn1X, y: jackRow0Y, connections: [] },
+    //             { id: 'in-osc12',      x: jackColumn2X, y: jackRow0Y, connections: [] },
+    //             { id: 'in-invert-in',  x: jackColumn3X, y: jackRow0Y, connections: [] },
+    //             { id: 'out-ocs1',      x: jackColumn4X, y: jackRow0Y, connections: [] },
+    //             { id: 'out-ocs2',      x: jackColumn5X, y: jackRow0Y, connections: [] },
+    //             { id: 'out-ocs-mix',   x: jackColumn6X, y: jackRow0Y, connections: [] },
 
-                { id: 'in-shape1',     x: jackColumn0X, y: jackRow1Y, connections: [] },
-                { id: 'in-shape2',     x: jackColumn1X, y: jackRow1Y, connections: [] },
-                { id: 'in-pw1',        x: jackColumn2X, y: jackRow1Y, connections: [] },
-                { id: 'in-pw2',        x: jackColumn3X, y: jackRow1Y, connections: [] },
-                { id: 'out-vcf1',      x: jackColumn4X, y: jackRow1Y, connections: [] },
-                { id: 'out-vcf2',      x: jackColumn5X, y: jackRow1Y, connections: [] },
-                { id: 'out-overdrive', x: jackColumn6X, y: jackRow1Y, connections: [] },
+    //             { id: 'in-shape1',     x: jackColumn0X, y: jackRow1Y, connections: [] },
+    //             { id: 'in-shape2',     x: jackColumn1X, y: jackRow1Y, connections: [] },
+    //             { id: 'in-pw1',        x: jackColumn2X, y: jackRow1Y, connections: [] },
+    //             { id: 'in-pw2',        x: jackColumn3X, y: jackRow1Y, connections: [] },
+    //             { id: 'out-vcf1',      x: jackColumn4X, y: jackRow1Y, connections: [] },
+    //             { id: 'out-vcf2',      x: jackColumn5X, y: jackRow1Y, connections: [] },
+    //             { id: 'out-overdrive', x: jackColumn6X, y: jackRow1Y, connections: [] },
 
-                { id: 'in-vcf',        x: jackColumn0X, y: jackRow2Y, connections: [] },
-                { id: 'in-freq-mod',   x: jackColumn1X, y: jackRow2Y, connections: [] },
-                { id: 'in-res',        x: jackColumn2X, y: jackRow2Y, connections: [] },
-                { id: 'in-overdrive',  x: jackColumn3X, y: jackRow2Y, connections: [] },
-                { id: 'out-vca',       x: jackColumn4X, y: jackRow2Y, connections: [] },
-                { id: 'out-output',    x: jackColumn5X, y: jackRow2Y, connections: [] },
-                { id: 'out-onoise',    x: jackColumn6X, y: jackRow2Y, connections: [] },
+    //             { id: 'in-vcf',        x: jackColumn0X, y: jackRow2Y, connections: [] },
+    //             { id: 'in-freq-mod',   x: jackColumn1X, y: jackRow2Y, connections: [] },
+    //             { id: 'in-res',        x: jackColumn2X, y: jackRow2Y, connections: [] },
+    //             { id: 'in-overdrive',  x: jackColumn3X, y: jackRow2Y, connections: [] },
+    //             { id: 'out-vca',       x: jackColumn4X, y: jackRow2Y, connections: [] },
+    //             { id: 'out-output',    x: jackColumn5X, y: jackRow2Y, connections: [] },
+    //             { id: 'out-onoise',    x: jackColumn6X, y: jackRow2Y, connections: [] },
 
-                { id: 'in-vca',        x: jackColumn0X, y: jackRow3Y, connections: [] },
-                { id: 'in-vca-cv',     x: jackColumn1X, y: jackRow3Y, connections: [] },
-                { id: 'in-delay',      x: jackColumn2X, y: jackRow3Y, connections: [] },
-                { id: 'in-delay-time', x: jackColumn3X, y: jackRow3Y, connections: [] },
-                { id: 'out-env1',      x: jackColumn4X, y: jackRow3Y, connections: [] },
-                { id: 'out-env2',      x: jackColumn5X, y: jackRow3Y, connections: [] },
-                { id: 'out-invert',    x: jackColumn6X, y: jackRow3Y, connections: [] },
+    //             { id: 'in-vca',        x: jackColumn0X, y: jackRow3Y, connections: [] },
+    //             { id: 'in-vca-cv',     x: jackColumn1X, y: jackRow3Y, connections: [] },
+    //             { id: 'in-delay',      x: jackColumn2X, y: jackRow3Y, connections: [] },
+    //             { id: 'in-delay-time', x: jackColumn3X, y: jackRow3Y, connections: [] },
+    //             { id: 'out-env1',      x: jackColumn4X, y: jackRow3Y, connections: [] },
+    //             { id: 'out-env2',      x: jackColumn5X, y: jackRow3Y, connections: [] },
+    //             { id: 'out-invert',    x: jackColumn6X, y: jackRow3Y, connections: [] },
 
-                { id: 'in-e-gate1',    x: jackColumn0X, y: jackRow4Y, connections: [] },
-                { id: 'in-e-gate2',    x: jackColumn1X, y: jackRow4Y, connections: [] },
-                { id: 'in-sh',         x: jackColumn2X, y: jackRow4Y, connections: [] },    
-                { id: 'in-sh-clock',   x: jackColumn3X, y: jackRow4Y, connections: [] },
-                { id: 'out-lfo',       x: jackColumn4X, y: jackRow4Y, connections: [] },
-                { id: 'out-lfo-uni',   x: jackColumn5X, y: jackRow4Y, connections: [] },
-                { id: 'out-sh',        x: jackColumn6X, y: jackRow4Y, connections: [] },    
+    //             { id: 'in-e-gate1',    x: jackColumn0X, y: jackRow4Y, connections: [] },
+    //             { id: 'in-e-gate2',    x: jackColumn1X, y: jackRow4Y, connections: [] },
+    //             { id: 'in-sh',         x: jackColumn2X, y: jackRow4Y, connections: [] },    
+    //             { id: 'in-sh-clock',   x: jackColumn3X, y: jackRow4Y, connections: [] },
+    //             { id: 'out-lfo',       x: jackColumn4X, y: jackRow4Y, connections: [] },
+    //             { id: 'out-lfo-uni',   x: jackColumn5X, y: jackRow4Y, connections: [] },
+    //             { id: 'out-sh',        x: jackColumn6X, y: jackRow4Y, connections: [] },    
 
-                { id: 'in-lfo-rate',   x: jackColumn0X, y: jackRow5Y, connections: [] },
-                { id: 'in-lfo-shape',  x: jackColumn1X, y: jackRow5Y, connections: [] },
-                { id: 'in-lfo-trig',   x: jackColumn2X, y: jackRow5Y, connections: [] },    
-                { id: 'in-mult',       x: jackColumn3X, y: jackRow5Y, connections: [] },
-                { id: 'out-mult1',     x: jackColumn4X, y: jackRow5Y, connections: [] },
-                { id: 'out-mult2',     x: jackColumn5X, y: jackRow5Y, connections: [] },
-                { id: 'out-midi-gate', x: jackColumn6X, y: jackRow5Y, connections: [] },
+    //             { id: 'in-lfo-rate',   x: jackColumn0X, y: jackRow5Y, connections: [] },
+    //             { id: 'in-lfo-shape',  x: jackColumn1X, y: jackRow5Y, connections: [] },
+    //             { id: 'in-lfo-trig',   x: jackColumn2X, y: jackRow5Y, connections: [] },    
+    //             { id: 'in-mult',       x: jackColumn3X, y: jackRow5Y, connections: [] },
+    //             { id: 'out-mult1',     x: jackColumn4X, y: jackRow5Y, connections: [] },
+    //             { id: 'out-mult2',     x: jackColumn5X, y: jackRow5Y, connections: [] },
+    //             { id: 'out-midi-gate', x: jackColumn6X, y: jackRow5Y, connections: [] },
 
-                { id: 'in-att1',       x: jackColumn0X, y: jackRow6Y, connections: [] },
-                { id: 'in-att1-cv',    x: jackColumn1X, y: jackRow6Y, connections: [] },
-                { id: 'in-att2',       x: jackColumn2X, y: jackRow6Y, connections: [] },    
-                { id: 'in-slew-in',    x: jackColumn3X, y: jackRow6Y, connections: [] },
-                { id: 'out-att1',      x: jackColumn4X, y: jackRow6Y, connections: [] },
-                { id: 'out-att2',      x: jackColumn5X, y: jackRow6Y, connections: [] },
-                { id: 'out-slew',      x: jackColumn6X, y: jackRow6Y, connections: [] },
+    //             { id: 'in-att1',       x: jackColumn0X, y: jackRow6Y, connections: [] },
+    //             { id: 'in-att1-cv',    x: jackColumn1X, y: jackRow6Y, connections: [] },
+    //             { id: 'in-att2',       x: jackColumn2X, y: jackRow6Y, connections: [] },    
+    //             { id: 'in-slew-in',    x: jackColumn3X, y: jackRow6Y, connections: [] },
+    //             { id: 'out-att1',      x: jackColumn4X, y: jackRow6Y, connections: [] },
+    //             { id: 'out-att2',      x: jackColumn5X, y: jackRow6Y, connections: [] },
+    //             { id: 'out-slew',      x: jackColumn6X, y: jackRow6Y, connections: [] },
 
-                { id: 'in-sum-1-a',    x: jackColumn0X, y: jackRow7Y, connections: [] },
-                { id: 'in-sum-1-b',    x: jackColumn1X, y: jackRow7Y, connections: [] },
-                { id: 'in-sum-2-a',    x: jackColumn2X, y: jackRow7Y, connections: [] },    
-                { id: 'in-sum-2-b',    x: jackColumn3X, y: jackRow7Y, connections: [] },
-                { id: 'out-sum1',      x: jackColumn4X, y: jackRow7Y, connections: [] },
-                { id: 'out-sum2',      x: jackColumn5X, y: jackRow7Y, connections: [] },
-                { id: 'out-assign',    x: jackColumn6X, y: jackRow7Y, connections: [] },
-            ]
-        };
-    }
+    //             { id: 'in-sum-1-a',    x: jackColumn0X, y: jackRow7Y, connections: [] },
+    //             { id: 'in-sum-1-b',    x: jackColumn1X, y: jackRow7Y, connections: [] },
+    //             { id: 'in-sum-2-a',    x: jackColumn2X, y: jackRow7Y, connections: [] },    
+    //             { id: 'in-sum-2-b',    x: jackColumn3X, y: jackRow7Y, connections: [] },
+    //             { id: 'out-sum1',      x: jackColumn4X, y: jackRow7Y, connections: [] },
+    //             { id: 'out-sum2',      x: jackColumn5X, y: jackRow7Y, connections: [] },
+    //             { id: 'out-assign',    x: jackColumn6X, y: jackRow7Y, connections: [] },
+    //         ]
+    //     };
+    // }
 
     get isInitialized()
     {
@@ -479,7 +539,7 @@ class SynthPresetHandler extends HTMLElement {
         
         <div id="synth-container">
             <!-- Background image of the synthesizer -->
-            <img id="synth-image" src="synth-background.jpg" alt="Synthesizer">
+            <img id="synth-image" src="BACKGROUND_IMAGE_PATH" alt="Synthesizer">
             <!-- Metadata -->
             <span id="preset-date" placeholder=""></span>  
             <input type="text" id="preset-author" placeholder="Author name">
@@ -505,9 +565,11 @@ class SynthPresetHandler extends HTMLElement {
         </div>
         `;
         
-        if(this.isTrilium)
+        this.mainInit();
+        template = template.replace('BACKGROUND_IMAGE_PATH', this.synthConfig.backgroundImagePath);
+
+        if(this.isTrilium == true)
         {
-            template = template.replace('synth-background.jpg', "http://127.0.0.1:37840/custom/synth/synth-background.jpg");
             template = template.replace('<input type="file" id="preset-file" accept=".json" style="display: none;">', '<input type="file" id="preset-file" accept=".json" style="display: none;"><select id="comboAttachments" title="Select file from attachment, subtree notes or custom resource to load."></select>');
         }
         this.shadowRoot.innerHTML = template;
@@ -517,11 +579,14 @@ class SynthPresetHandler extends HTMLElement {
         this.initAudio();
         this.initSynth();
         this.initEventListeners();
+        this.m_isInitialized = true;
     }
 
-    initAudio() {
+    initAudio() 
+    {
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        this.elements.audioAdd.addEventListener('click', () => {
+        this.elements.audioAdd.addEventListener('click', () => 
+            {
                 this.elements.audioFileInput.click();
             });
         this.elements.audioFileInput.addEventListener('change', this.handleAudioUpload.bind(this));
@@ -529,8 +594,10 @@ class SynthPresetHandler extends HTMLElement {
         this.elements.audioStop.addEventListener('click', this.stopAudio.bind(this));
     }
   
-    async decodeAudioData(dataURL) {
-        try {
+    async decodeAudioData(dataURL) 
+    {
+        try 
+        {
             const response = await fetch(dataURL);
             const arrayBuffer = await response.arrayBuffer();
             this.audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
@@ -572,7 +639,8 @@ class SynthPresetHandler extends HTMLElement {
     }
 
     // Initialize the synthesizer UI
-    initSynth() {
+    initSynth() 
+    {
         this.elements.synthContainer.querySelectorAll('.knob').forEach(el => el.remove());
         this.elements.synthContainer.querySelectorAll('.synth-button').forEach(el => el.remove());
         this.elements.synthContainer.querySelectorAll('.jack').forEach(el => el.remove());
@@ -613,8 +681,7 @@ class SynthPresetHandler extends HTMLElement {
 
                 const shift = 0.01 * -e.movementY;
                 let newValue = knobConfig.value + shift;
-                newValue = Math.max(0, Math.min(1, newValue));
-                
+                newValue = Math.max(0, Math.min(1, newValue)); 
                 knobConfig.value = newValue;
                 this.updateKnobRotation(knob, knobConfig);
             });
@@ -625,27 +692,31 @@ class SynthPresetHandler extends HTMLElement {
         });
    
         // Create buttons
-        this.synthConfig.buttons.forEach(buttonConfig => {
+        this.synthConfig.buttons.forEach(buttonConfig => 
+        {
             const button = document.createElement('div');
             button.className = 'synth-button';
             button.id = buttonConfig.id;
             button.title = buttonConfig.id;
 
-            if (buttonConfig.state) {
+            if (buttonConfig.state) 
+            {
                 button.classList.add('on');
             }
             
             this.elements.synthContainer.appendChild(button);
             this.updateButtonPosition(button, buttonConfig);
             
-            button.addEventListener('click', () => {
+            button.addEventListener('click', () => 
+            {
                 buttonConfig.state = !buttonConfig.state;
                 button.classList.toggle('on');
             });
         });
         
         // Create jacks
-        this.synthConfig.jacks.forEach(jackConfig => {
+        this.synthConfig.jacks.forEach(jackConfig => 
+        {
             const jack = document.createElement('div');
             jack.className = 'jack';
             jack.id = jackConfig.id;
@@ -654,12 +725,15 @@ class SynthPresetHandler extends HTMLElement {
             this.elements.synthContainer.appendChild(jack);
             this.updateJackPosition(jack, jackConfig);
             
-            jack.addEventListener('mousedown', (e) => {
+            jack.addEventListener('mousedown', (e) =>
+            {
                 e.stopPropagation();
                 
-                if (this.activeJack) {
+                if (this.activeJack) 
+                {
                     // Complete the connection
-                    if (this.activeJack !== jackConfig.id) {
+                    if (this.activeJack !== jackConfig.id)
+                    {
                         //identify out jack
                         // Check if connection already exists
                         const otherJack = this.synthConfig.jacks.find(j => j.id === this.activeJack);
@@ -675,10 +749,13 @@ class SynthPresetHandler extends HTMLElement {
                             inJack = jackConfig;
                         }
 
-                        if (!anyConnectionExists) {
+                        if (!anyConnectionExists) 
+                        {
                             outJack.connections.push(inJack.id);
                             this.updateConnections();
-                        } else {
+                        } 
+                        else 
+                        {
                             let jackWithConnection;
                             let jackConnectedTo;
                             if(existingThisConnection)
@@ -694,12 +771,17 @@ class SynthPresetHandler extends HTMLElement {
                             // Remove connection if it exists
                             jackWithConnection.connections = outJack.connections.filter(id => id !== jackConnectedTo.id);
                             this.updateConnections();
+                            const jackWithConnectionElement = this.shadowRoot.getElementById(outJack.id);
+                            let title = jackWithConnectionElement.getAttribute('title');
+                            title = title.replace('\n' + outJack.id + ' -> ' + inJack.id, '');
+                            jackWithConnectionElement.setAttribute('title', title);
                         }
                     }
                     
                     this.shadowRoot.querySelectorAll('.jack').forEach(j => j.classList.remove('active'));
                     this.activeJack = null;
-                } else {
+                } else 
+                {
                     // Start a new connection
                     this.activeJack = jackConfig.id;
                     jack.classList.add('active');
@@ -713,16 +795,20 @@ class SynthPresetHandler extends HTMLElement {
 
     initEventListeners() {
         // This should already exist in your code
-        this.elements.presetFileInput.addEventListener('change', (e) => {
+        this.elements.presetFileInput.addEventListener('change', (e) =>
+        {
             const file = e.target.files[0];
             if (!file) return;
             
             const reader = new FileReader();
-            reader.onload = (event) => {
-                try {
+            reader.onload = (event) =>
+            {
+                try 
+                {
                     const preset = JSON.parse(event.target.result);
                     this.loadPreset(preset);
-                } catch (error) {
+                } catch (error) 
+                {
                     alert("Error loading preset file: " + error.message);
                 }
             };
@@ -730,12 +816,14 @@ class SynthPresetHandler extends HTMLElement {
         });
 
         // Load preset from JSON file
-        this.elements.loadPresetBtn.addEventListener('click', () => {
+        this.elements.loadPresetBtn.addEventListener('click', () => 
+        {
             this.elements.presetFileInput.click();
         });
 
         // Save preset to JSON file
-        this.elements.savePresetBtn.addEventListener('click', () => {
+        this.elements.savePresetBtn.addEventListener('click', () => 
+        {
             const preset = {
                 meta: {
                     author: this.elements.presetAuthor.value || 'Anonymous',
@@ -761,7 +849,7 @@ class SynthPresetHandler extends HTMLElement {
             presetName = presetName + '.ntr';
             
             const presetStr = JSON.stringify(preset, null, 2);
-            if(this.isTrilium)
+            if(this.isTrilium == true)
             {
                 const parentNote = api.getActiveContextNote();      
                 this.api.runOnBackend((parentId, presetName, jsonString) =>
@@ -859,17 +947,21 @@ class SynthPresetHandler extends HTMLElement {
         // Update jack states
         this.synthConfig.jacks.forEach(jackConfig => {
             const jack = this.shadowRoot.getElementById(jackConfig.id);
+            jack.setAttribute('title', jack.id)
             jack.classList.remove('connected');
         });
         this.synthConfig.jacks.forEach(jackConfig => {
             const jack = this.shadowRoot.getElementById(jackConfig.id);
             if (jackConfig.connections.length > 0) {
                 jack.classList.add('connected');
+                let title = jack.getAttribute('title');
                 jackConfig.connections.forEach(id =>
                 {
                     const inJack = this.shadowRoot.getElementById(id);
                     inJack.classList.add('connected');
+                    title += '\n' + inJack.id;
                 });
+                jack.setAttribute('title', title);  
              }
         });
         
@@ -893,7 +985,8 @@ class SynthPresetHandler extends HTMLElement {
                     cable.className = 'cable';
                     
                     // Assign a color based on connection index to make it consistent
-                    const colorIndex = (jackIndex + toJackIndex) % wireColors.length;
+                    // const colorIndex = (jackIndex + toJackIndex) % wireColors.length;
+                    const colorIndex = (toJackIndex) % wireColors.length;
                     cable.style.borderColor = wireColors[colorIndex];
                     cable.style.backgroundColor = wireColors[colorIndex];
                     
