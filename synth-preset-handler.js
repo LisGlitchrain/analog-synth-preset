@@ -111,16 +111,16 @@ class SynthPresetHandler extends HTMLElement {
             
             buttons: [
                 { id: 'osc1-range-8',       x: 0.108,  y: 0.655,  state: false },
-                { id: 'osc1-range-16',      x: 0.108,  y: 0.687,  state: false }  ,
+                { id: 'osc1-range-16',      x: 0.108,  y: 0.687,  state: false },
                 { id: 'osc1-range-32',      x: 0.108,  y: 0.721,  state: false },
                 { id: 'osc2-range-8',       x: 0.1345, y: 0.655,  state: false },
                 { id: 'osc2-range-16',      x: 0.1345, y: 0.687,  state: false },
                 { id: 'osc2-range-32',      x: 0.1345, y: 0.721,  state: false },
                 { id: 'osc-sync',           x: 0.12,   y: 0.84,   state: false },
                 { id: 'paraphonic',         x: 0.12,   y: 0.9,    state: false },
-                { id: 'vcf-mode-low-cut',   x: 0.235,  y: 0.54,   state: true  },
+                { id: 'vcf-mode-low-cut',   x: 0.235,  y: 0.54,   state: false },
                 { id: 'vcf-mode-band-pass', x: 0.235,  y: 0.568,  state: false },
-                { id: 'vcf-mode-high-cut',  x: 0.235,  y: 0.596,  state: false },
+                { id: 'vcf-mode-high-cut',  x: 0.235,  y: 0.596,  state: true  },
                 { id: 'vcf-key-track',      x: 0.2745, y: 0.695,  state: false },
                 { id: 'lfo-key-sync',       x: 0.336,  y: 0.491,  state: false },
             ],
@@ -490,7 +490,8 @@ class SynthPresetHandler extends HTMLElement {
             <div id="controls">
                 <button id="save-preset">Save Preset</button>
                 <button id="load-preset">Load Preset</button>
-                <input type="file" id="preset-file" accept=".ntr" style="display: none;">
+                <!-- .json is FORCED to be here. For some strange reason Trilium just breacks with .ntr extension -->
+                <input type="file" id="preset-file" accept=".json" style="display: none;">
             </div>
 
             <div id="audio-controls">
