@@ -49,64 +49,64 @@ class SynthPresetHandler extends HTMLElement {
         const column6X   = 0.6315;
         const column7X   = 0.6933;
 
-        const jackColumn0X = 0.765;
-        const jackColumn1X = 0.7989;
-        const jackColumn2X = 0.8328;
-        const jackColumn3X = 0.8667;
-        const jackColumn4X = 0.9006;
-        const jackColumn5X = 0.9345;
-        const jackColumn6X = 0.9685;
+        const jackColumn0X = 0.7627;
+        const jackColumn1X = 0.7965666667;
+        const jackColumn2X = 0.8304333333;
+        const jackColumn3X = 0.8643;
+        const jackColumn4X = 0.8981666667;
+        const jackColumn5X = 0.9320333333;
+        const jackColumn6X = 0.9659;
 
-        const jackRow0Y = 0.5;
-        const jackRow1Y = 0.5586;
-        const jackRow2Y = 0.6172;
-        const jackRow3Y = 0.6758;
-        const jackRow4Y = 0.7344;
-        const jackRow5Y = 0.793;
-        const jackRow6Y = 0.8516;
-        const jackRow7Y = 0.9102;
+        const jackRow0Y = 0.495;
+        const jackRow1Y = 0.5535714286;
+        const jackRow2Y = 0.6121428571;
+        const jackRow3Y = 0.6707142857;
+        const jackRow4Y = 0.7292857143;
+        const jackRow5Y = 0.7878571428;
+        const jackRow6Y = 0.8464285714;
+        const jackRow7Y = 0.905;
 
         // Configuration for our synthesizer elements
         this.synthConfig = {
             // These positions are relative to the synth image dimensions
             // You'll need to adjust these based on your actual synth image
             knobs: [
-                { id: 'osc1-tune',     x: ocs1ParamX,  y: ocsY,  value: 0.5 },
-                { id: 'osc1-shape',    x: ocs1ParamX,  y: row1Y, value: 0.5 },
-                { id: 'osc1-width',    x: ocs1ParamX,  y: row0Y, value: 0.5 },
-                { id: 'osc2-tune',     x: ocs2ParamX,  y: ocsY,  value: 0.5 },
-                { id: 'osc2-shape',    x: ocs2ParamX,  y: row1Y, value: 0.5 },
-                { id: 'osc2-width',    x: ocs2ParamX,  y: row0Y, value: 0.5 },
-                { id: 'osc-mix',       x: 0.109,       y: 0.5145,value: 0.5 },
-                { id: 'vcf-freq',      x: column0X,    y: row3Y, value: 0.5 },
-                { id: 'vcf-reso',      x: column0X,    y: row2Y, value: 0.5 },
-                { id: 'vcf-mod-depth', x: column0X,    y: row1Y, value: 0.5 },
-                { id: 'vcf-env-depth', x: column0X,    y: row0Y, value: 0.5 },
-                { id: 'lfo-shape',     x: 0.354,       y: ocsY,  value: 0.5 },
-                { id: 'lfo-rate',      x: column2X,    y: row3Y, value: 0.5 },
-                { id: 'noise',         x: column1X,    y: row1Y, value: 0.5 },
-                { id: 'vca-bias',      x: column1X,    y: row0Y, value: 0.5 },
-                { id: 'env1-attack',   x: column2X,    y: row1Y, value: 0.5 },
-                { id: 'env1-decay',    x: column3X,    y: row1Y, value: 0.5 },
-                { id: 'env1-sustain',  x: column4X,    y: row1Y, value: 0.5 },
-                { id: 'env1-release',  x: column5X,    y: row1Y, value: 0.5 },
-                { id: 'env2-attack',   x: column2X,    y: row0Y, value: 0.5 },
-                { id: 'env2-decay',    x: column3X,    y: row0Y, value: 0.5 },
-                { id: 'env2-sustain',  x: column4X,    y: row0Y, value: 0.5 },
-                { id: 'env2-release',  x: column5X,    y: row0Y, value: 0.5 },
-                { id: 'delay-time',    x: column3X,    y: row3Y, value: 0.5 },
-                { id: 'delay-repeats', x: column4X,    y: row3Y, value: 0.5 },
-                { id: 'delay-mix',     x: column5X,    y: row3Y, value: 0.5 },
-                { id: 'od-drive',      x: column3X,    y: row2Y, value: 0.5 },
-                { id: 'od-tone',       x: column4X,    y: row2Y, value: 0.5 },
-                { id: 'od-level',      x: column5X,    y: row2Y, value: 0.5 },
-                { id: 'output-volume', x: column6X,    y: row3Y, value: 0.5 },
-                { id: 'sh-rate',       x: column6X,    y: row2Y, value: 0.5 },
-                { id: 'sh-glide',      x: column7X,    y: row2Y, value: 0.5 },
-                { id: 'srl-slew',      x: column6X,    y: row1Y, value: 0.5 },
-                { id: 'srl-time',      x: column7X,    y: row1Y, value: 0.5 },
-                { id: 'attenuator1',   x: column6X,    y: row0Y, value: 0.5 },
-                { id: 'attenuator2',   x: column7X,    y: row0Y, value: 0.5 }
+                { id: 'osc1-tune',     x: ocs1ParamX,  y: ocsY,  value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'osc1-shape',    x: ocs1ParamX,  y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'osc1-width',    x: ocs1ParamX,  y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'osc2-tune',     x: ocs2ParamX,  y: ocsY,  value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'osc2-shape',    x: ocs2ParamX,  y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'osc2-width',    x: ocs2ParamX,  y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'osc-mix',       x: 0.109,       y: 0.5145,value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'vcf-freq',      x: column0X,    y: row3Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'vcf-reso',      x: column0X,    y: row2Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'vcf-mod-depth', x: column0X,    y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'vcf-env-depth', x: column0X,    y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'lfo-shape',     x: 0.354,       y: ocsY,  value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'lfo-rate',      x: column2X,    y: row3Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'noise',         x: column1X,    y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'vca-bias',      x: column1X,    y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'env1-attack',   x: column2X,    y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'env1-decay',    x: column3X,    y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'env1-sustain',  x: column4X,    y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'env1-release',  x: column5X,    y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'env2-attack',   x: column2X,    y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'env2-decay',    x: column3X,    y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'env2-sustain',  x: column4X,    y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'env2-release',  x: column5X,    y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'delay-time',    x: column3X,    y: row3Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'delay-repeats', x: column4X,    y: row3Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'delay-mix',     x: column5X,    y: row3Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'od-drive',      x: column3X,    y: row2Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'od-tone',       x: column4X,    y: row2Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'od-level',      x: column5X,    y: row2Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'output-volume', x: column6X,    y: row3Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'sh-rate',       x: column6X,    y: row2Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'sh-glide',      x: column7X,    y: row2Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'srl-slew',      x: column6X,    y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'srl-time',      x: column7X,    y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'attenuator1',   x: column6X,    y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 },
+                { id: 'attenuator2',   x: column7X,    y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 }
             ],
             
             buttons: [
@@ -121,7 +121,7 @@ class SynthPresetHandler extends HTMLElement {
                 { id: 'vcf-mode-low-cut',   x: 0.235,  y: 0.54,   state: true  },
                 { id: 'vcf-mode-band-pass', x: 0.235,  y: 0.568,  state: false },
                 { id: 'vcf-mode-high-cut',  x: 0.235,  y: 0.596,  state: false },
-                { id: 'vcf-track-key',      x: 0.2745, y: 0.695,  state: false },
+                { id: 'vcf-key-track',      x: 0.2745, y: 0.695,  state: false },
                 { id: 'lfo-key-sync',       x: 0.336,  y: 0.491,  state: false },
             ],
             
@@ -251,15 +251,22 @@ class SynthPresetHandler extends HTMLElement {
             
             .jack {
                 position: absolute;
-                width: 12px;
-                height: 12px;
+                width: 18px;
+                height: 18px;
                 border-radius: 50%;
-                background-color: rgba(0, 0, 255, 0.5);
+                background-color: rgba(255, 0, 0, 0.5);
                 cursor: pointer;
+            }
+
+            .jack.active {
+                background-color: rgba(255, 165, 0, 0.9); /* Orange color for active state */
+                box-shadow: 0 0 10px 3px rgba(255, 255, 0, 0.7); /* Glow effect */
+                transform: scale(1.3); /* Slightly larger */
+                transition: all 0.2s ease; /* Smooth transition */
             }
             
             .jack.connected {
-                background-color: rgba(255, 255, 0, 0.7);
+                background-color: rgba(0, 255, 21, 0.7);
             }
 
             /* Ensure interactive elements stay on top */
@@ -295,6 +302,16 @@ class SynthPresetHandler extends HTMLElement {
                 border-color: inherit;
                 border-radius: 50%;
                 transform: rotate(180deg);
+            }
+
+            /* Makes tooltips appear faster on hover */
+            svg path:hover {
+                cursor: help;
+                stroke-width: 7px; /* Optional: highlight on hover */
+            }
+
+            svg title {
+                z-index:40;
             }
             
             #controls {
@@ -574,7 +591,7 @@ class SynthPresetHandler extends HTMLElement {
             this.elements.synthContainer.appendChild(knob);
             
             this.updateKnobPosition(knob, knobConfig);
-            this.updateKnobRotation(knob, knobConfig.value);
+            this.updateKnobRotation(knob, knobConfig);
             
             // Add event listeners for knob rotation
             let isDragging = false;
@@ -599,7 +616,7 @@ class SynthPresetHandler extends HTMLElement {
                 newValue = Math.max(0, Math.min(1, newValue));
                 
                 knobConfig.value = newValue;
-                this.updateKnobRotation(knob, newValue);
+                this.updateKnobRotation(knob, knobConfig);
             });
 
             document.addEventListener('mouseup', () => {
@@ -643,34 +660,44 @@ class SynthPresetHandler extends HTMLElement {
                 if (this.activeJack) {
                     // Complete the connection
                     if (this.activeJack !== jackConfig.id) {
+                        //identify out jack
                         // Check if connection already exists
-                        const existingConnection = jackConfig.connections.includes(this.activeJack);
-                        
-                        if (!existingConnection) {
-                            jackConfig.connections.push(this.activeJack);
-                            
-                            // Add reverse connection
-                            const otherJack = this.synthConfig.jacks.find(j => j.id === this.activeJack);
-                            if (otherJack && !otherJack.connections.includes(jackConfig.id)) {
-                                otherJack.connections.push(jackConfig.id);
-                            }
-                            
+                        const otherJack = this.synthConfig.jacks.find(j => j.id === this.activeJack);
+                        const existingThisConnection = jackConfig.connections.includes(this.activeJack);
+                        const existingOtherConnection = otherJack.connections.includes(jackConfig.id);
+                        const anyConnectionExists = existingThisConnection || existingOtherConnection;
+
+                        let outJack = jackConfig;
+                        let inJack = otherJack;
+                        if(otherJack.id.startsWith('out'))
+                        {
+                            outJack = otherJack;
+                            inJack = jackConfig;
+                        }
+
+                        if (!anyConnectionExists) {
+                            outJack.connections.push(inJack.id);
                             this.updateConnections();
                         } else {
-                            // Remove connection if it exists
-                            jackConfig.connections = jackConfig.connections.filter(id => id !== this.activeJack);
-                            
-                            // Remove reverse connection
-                            const otherJack = this.synthConfig.jacks.find(j => j.id === this.activeJack);
-                            if (otherJack) {
-                                otherJack.connections = otherJack.connections.filter(id => id !== jackConfig.id);
+                            let jackWithConnection;
+                            let jackConnectedTo;
+                            if(existingThisConnection)
+                            {
+                                jackWithConnection = jackConfig;
+                                jackConnectedTo = otherJack;
                             }
-                            
+                            else
+                            {
+                                jackWithConnection = otherJack;
+                                jackConnectedTo = jackConfig;
+                            }
+                            // Remove connection if it exists
+                            jackWithConnection.connections = outJack.connections.filter(id => id !== jackConnectedTo.id);
                             this.updateConnections();
                         }
                     }
                     
-                    document.querySelectorAll('.jack').forEach(j => j.classList.remove('active'));
+                    this.shadowRoot.querySelectorAll('.jack').forEach(j => j.classList.remove('active'));
                     this.activeJack = null;
                 } else {
                     // Start a new connection
@@ -768,6 +795,9 @@ class SynthPresetHandler extends HTMLElement {
 
     // Update positions of all elements based on container size
     updateAllPositions() {
+        if(typeof this.synthConfig === 'undefined')
+            return;
+
         this.synthConfig.knobs.forEach(knobConfig => {
             const knob = this.shadowRoot.getElementById(knobConfig.id);
             if (knob) this.updateKnobPosition(knob, knobConfig);
@@ -804,9 +834,10 @@ class SynthPresetHandler extends HTMLElement {
         jack.style.top = `${config.y * containerRect.height - 6}px`;
     }
     
-    updateKnobRotation(knob, value) {
-        // Convert value (0-1) to rotation (-152 to 152 degrees)
-        const rotation = (value * 304) - 152;
+    updateKnobRotation(knob, config) {
+        // Convert value (0-1) to rotation (minAngle to maxAngle degrees)
+        const range = config.maxAngle - config.minAngle;
+        const rotation = (config.value * range) + config.minAngle;
         knob.style.transform = `rotate(${rotation}deg)`;
     }
 
@@ -828,11 +859,18 @@ class SynthPresetHandler extends HTMLElement {
         // Update jack states
         this.synthConfig.jacks.forEach(jackConfig => {
             const jack = this.shadowRoot.getElementById(jackConfig.id);
+            jack.classList.remove('connected');
+        });
+        this.synthConfig.jacks.forEach(jackConfig => {
+            const jack = this.shadowRoot.getElementById(jackConfig.id);
             if (jackConfig.connections.length > 0) {
                 jack.classList.add('connected');
-            } else {
-                jack.classList.remove('connected');
-            }
+                jackConfig.connections.forEach(id =>
+                {
+                    const inJack = this.shadowRoot.getElementById(id);
+                    inJack.classList.add('connected');
+                });
+             }
         });
         
         // Create new cables for all connections
@@ -844,6 +882,7 @@ class SynthPresetHandler extends HTMLElement {
             
             jackConfig.connections.forEach((connectionId, connIndex) => {
                 const toJack = this.shadowRoot.getElementById(connectionId);
+                const toJackIndex = this.synthConfig.jacks.findIndex(jack => jack.id === toJack.id);
                 if (toJack) {
                     const toRect = toJack.getBoundingClientRect();
                     const toX = toRect.left + toRect.width / 2;
@@ -854,18 +893,16 @@ class SynthPresetHandler extends HTMLElement {
                     cable.className = 'cable';
                     
                     // Assign a color based on connection index to make it consistent
-                    const colorIndex = (jackIndex + connIndex) % wireColors.length;
+                    const colorIndex = (jackIndex + toJackIndex) % wireColors.length;
                     cable.style.borderColor = wireColors[colorIndex];
                     cable.style.backgroundColor = wireColors[colorIndex];
-                    
-                    // Choose between straight or curved cable randomly
-                    const useCurved = Math.random() > 0.5;
                     
                     if (true) {
                         cable.classList.add('curved');
                         cable.style.position = 'absolute';
                         cable.style.left = 0;
                         cable.style.top = 0;
+                        //unify cables behaviour for jackA->jackB connection and jackB->jackA (they both are created!)
                         let fromXCorrected = fromX;
                         let toXCorrected = toX;
                         let fromYCorrected = fromY;
@@ -877,9 +914,20 @@ class SynthPresetHandler extends HTMLElement {
                             fromYCorrected = toY;
                             toYCorrected = fromY;
                         }
+                        else if(fromX == toX)
+                        {
+                            if(fromY > toY)
+                            {
+                                fromXCorrected = toX;
+                                toXCorrected = fromX;
+                                fromYCorrected = toY;
+                                toYCorrected = fromY;
+                            }
+                        }
 
-                        this.createCurvedCable(cable, fromXCorrected, fromYCorrected, toXCorrected, toYCorrected, wireColors[colorIndex]);
+                        this.createCurvedCable(cable, fromXCorrected, fromYCorrected, toXCorrected, toYCorrected, wireColors[colorIndex], jackConfig.id, toJack.id);
                     } else {
+                        //just in case svg-method is not working.
                         this.createStraightCable(cable, fromX, fromY, toX, toY);
                     }
                     
@@ -904,7 +952,7 @@ class SynthPresetHandler extends HTMLElement {
         cable.style.transform = `rotate(${angle}deg)`;
     }
 
-    createCurvedCable(cable, fromX, fromY, toX, toY, color) {
+    createCurvedCable(cable, fromX, fromY, toX, toY, color, fromId, toId) {
         const containerRect = this.elements.synthContainer.getBoundingClientRect();
         const relativeFromX = fromX - containerRect.left;
         const relativeFromY = fromY - containerRect.top;
@@ -916,7 +964,7 @@ class SynthPresetHandler extends HTMLElement {
         const controlY = (relativeFromY + relativeToY) / 2 + (relativeToX - relativeFromX) / 3;
         
         // Create SVG path for the curved cable
-        const svgNS = "http://www.w3.org/2000/svg";
+        const svgNS = "http://www.w3.org/2000/svg"; //just an identifier, will work without the Internet
         const svg = document.createElementNS(svgNS, "svg");
         svg.setAttribute('width', containerRect.width);
         svg.setAttribute('height', containerRect.height);
@@ -928,14 +976,16 @@ class SynthPresetHandler extends HTMLElement {
         const path = document.createElementNS(svgNS, "path");
         path.setAttribute('d', `M${relativeFromX},${relativeFromY} Q${controlX},${controlY} ${relativeToX},${relativeToY}`);
         path.setAttribute('stroke', color);
-        path.setAttribute('stroke-width', '2');
+        path.setAttribute('stroke-width', '5');
         path.setAttribute('fill', 'none');
         path.setAttribute('stroke-linecap', 'round');
-        
+        path.style.pointerEvents = 'visible';
+        const title = document.createElementNS(svgNS, "title");
+        title.textContent = fromId + " -> " + toId;
+        path.appendChild(title);
+
         svg.appendChild(path);
-        // this.elements.synthContainer.appendChild(svg);
         cable.appendChild(svg);
-        // this.cables.push(svg);
     }
 
     sanitizePath(path) {
@@ -998,7 +1048,7 @@ class SynthPresetHandler extends HTMLElement {
                     knobConfig.value = knobFromPreset.value;
                     const knobElement = this.shadowRoot.getElementById(knobConfig.id);
                     if (knobElement) {
-                        this.updateKnobRotation(knobElement, knobConfig.value);
+                        this.updateKnobRotation(knobElement, knobConfig);
                     }
                 }
             });
