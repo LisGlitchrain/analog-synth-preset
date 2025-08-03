@@ -490,7 +490,7 @@ class SynthPresetHandler extends HTMLElement {
             <div id="controls">
                 <button id="save-preset">Save Preset</button>
                 <button id="load-preset">Load Preset</button>
-                <input type="file" id="preset-file" accept=".json" style="display: none;">
+                <input type="file" id="preset-file" accept=".ntr" style="display: none;">
             </div>
 
             <div id="audio-controls">
@@ -550,7 +550,6 @@ class SynthPresetHandler extends HTMLElement {
         this.elements = {
             synthImage:       this.shadowRoot.getElementById('synth-image'),
             synthContainer:   this.shadowRoot.getElementById('synth-container'),
-            //container:        this.shadowRoot.getElementById('synth-container'),
             //Meta controls
             presetAuthor:     this.shadowRoot.getElementById('preset-author'),
             presetNumber:     this.shadowRoot.getElementById('preset-number'),
@@ -859,17 +858,21 @@ class SynthPresetHandler extends HTMLElement {
         // Update jack states
         this.synthConfig.jacks.forEach(jackConfig => {
             const jack = this.shadowRoot.getElementById(jackConfig.id);
+            jack.setAttribute('title', jack.id)
             jack.classList.remove('connected');
         });
         this.synthConfig.jacks.forEach(jackConfig => {
             const jack = this.shadowRoot.getElementById(jackConfig.id);
             if (jackConfig.connections.length > 0) {
                 jack.classList.add('connected');
+                let title = jack.getAttribute('title');
                 jackConfig.connections.forEach(id =>
                 {
                     const inJack = this.shadowRoot.getElementById(id);
                     inJack.classList.add('connected');
+                    title += '\n' + inJack.id;
                 });
+                jack.setAttribute('title', title);  
              }
         });
         
@@ -893,7 +896,7 @@ class SynthPresetHandler extends HTMLElement {
                     cable.className = 'cable';
                     
                     // Assign a color based on connection index to make it consistent
-                    const colorIndex = (jackIndex + toJackIndex) % wireColors.length;
+                    const colorIndex = (toJackIndex) % wireColors.length;
                     cable.style.borderColor = wireColors[colorIndex];
                     cable.style.backgroundColor = wireColors[colorIndex];
                     
