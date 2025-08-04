@@ -2,7 +2,8 @@ class SynthPresetHandler extends HTMLElement {
     constructor() {
         super();
         this.isTrilium = this.getAttribute('isTrilium') || false;
-        this.defineSynthConfig();
+        this.synthConfig = this.getDefaultConfig();
+        this.defaultConfig = this.getDefaultConfig();
         this.defineVariables();
   
         // Shadow DOM for encapsulation
@@ -30,7 +31,7 @@ class SynthPresetHandler extends HTMLElement {
         this.currentNote = null;
     }
 
-    defineSynthConfig()
+    getDefaultConfig()
     {
         //SYNTH CONFIG (KNOBS, BUTTONS, JACKS)
         const ocsY = 0.576;
@@ -67,7 +68,7 @@ class SynthPresetHandler extends HTMLElement {
         const jackRow7Y = 0.905;
 
         // Configuration for our synthesizer elements
-        this.synthConfig = {
+        return {
             // These positions are relative to the synth image dimensions
             // You'll need to adjust these based on your actual synth image
             knobs: [
@@ -189,8 +190,49 @@ class SynthPresetHandler extends HTMLElement {
                 { id: 'out-sum1',      x: jackColumn4X, y: jackRow7Y, connections: [] },
                 { id: 'out-sum2',      x: jackColumn5X, y: jackRow7Y, connections: [] },
                 { id: 'out-assign',    x: jackColumn6X, y: jackRow7Y, connections: [] },
+            ],
+            "faders": [
+                { 
+                    "id": "volume", 
+                    "x": 0.3, 
+                    "y": 0.3,
+                    "length": 120,          // Pixel length
+                    "direction": "vertical", // or "horizontal"
+                    "default": 0.5,         // 0-1 range
+                    "thickness": 15         // Optional (default: 15px)
+                },
+                { 
+                    "id": "volume-2", 
+                    "x": 0.5, 
+                    "y": 0.3,
+                    "length": 120,          // Pixel length
+                    "direction": "horizontal", // or "horizontal"
+                    "default": 0.2,         // 0-1 range
+                    "thickness": 15         // Optional (default: 15px)
+                }
             ]
         };
+    }
+
+    resetToDefaults() {
+        // Restore config values
+        this.synthConfig = JSON.parse(JSON.stringify(this.defaultConfig));
+        
+        // Update UI
+        this.initSynth(); // Re-render all elements
+        
+        // Reset metadata fields
+        this.elements.presetAuthor.value = '';
+        this.elements.presetNumber.value = 1;
+        this.elements.presetName.value = '';
+        this.elements.presetNotes.value = '';
+        
+        // Clear audio
+        this.stopAudio();
+        this.audioBuffer = null;
+        this.elements.audioInfo.textContent = "No sample loaded";
+        this.elements.audioPlay.disabled = true;
+        this.elements.audioStop.disabled = true;
     }
 
     get isInitialized()
@@ -220,7 +262,7 @@ class SynthPresetHandler extends HTMLElement {
                 width: 50px;
                 height: 50px;
                 border-radius: 50%;
-                background-color: rgba(255, 255, 255, 0.3);
+                //background-color: rgba(0, 255, 0, 0.3); //debug color
                 cursor: pointer;
                 transform-origin: center;
             }
@@ -272,6 +314,49 @@ class SynthPresetHandler extends HTMLElement {
             /* Ensure interactive elements stay on top */
             .knob, .button, .synth-button, .jack {
                 z-index: 20; /* Higher than meta overlay */
+            }
+
+            .synth-fader {
+                position: absolute;
+                display: flex;
+                cursor: ns-resize; /* Default vertical cursor */
+            }
+
+            /* Vertical fader (default) */
+            .fader-track {
+                width: var(--thickness, 15px);
+                height: var(--length, 100px);
+                background: rgba(85, 85, 85, 0.7);
+                border-radius: 0px;
+                position: relative;
+            }
+
+            .fader-handle {
+                width: calc(var(--thickness, 15px) + 10px);
+                height: 10px;
+                background: red;
+                border-radius: 0px;
+                position: absolute;
+                left: 50%;
+                transform: translate(-50%, 50%);
+            }
+
+            /* Horizontal fader */
+            .synth-fader.horizontal {
+                cursor: ew-resize;
+            }
+
+            .synth-fader.horizontal .fader-track {
+                width: var(--length, 100px);
+                height: var(--thickness, 15px);
+            }
+
+            .synth-fader.horizontal .fader-handle {
+                width: 10px;
+                height: calc(var(--thickness, 15px) + 10px);
+                top: 50%;
+                left: auto;
+                transform: translate(-50%, -50%);
             }
                     
             .cable {
@@ -360,7 +445,7 @@ class SynthPresetHandler extends HTMLElement {
                 position: absolute;
                 top: 32%;
                 left: 0.5%;
-                width: 97.8%;
+                width: 90%;
                 height: 8%;
                 text-align: left;
                 padding: 0.5%;
@@ -385,6 +470,26 @@ class SynthPresetHandler extends HTMLElement {
                 text-overflow: ellipsis;
                 white-space: nowrap;
                 vertical-align: middle;
+            }
+
+            //other controls
+            #other-controls {
+                position: absolute;
+                top: 32%;
+                left: 91%;
+                width: 8%;
+                height: 8%;
+                text-align: left;
+                padding: 0.5%;
+                background: #333;
+                border-radius: 5px;
+            }
+
+            #other-controls button {
+                height: 100%;
+                width: 6%;
+                margin: 0 5px;
+                padding: 5px 0px;
             }
 
             /* Position the overlay absolutely within the synth container */
@@ -501,6 +606,9 @@ class SynthPresetHandler extends HTMLElement {
                 <button id="audio-stop" disabled>Stop</button>
                 <span id="audio-info">No sample loaded</span>
             </div>
+            <div id="other-controls">
+                <button id="reset-preset">Reset</button>
+            </div>
 
             <!-- Knobs, buttons and jacks will be added dynamically -->
         </div>
@@ -576,6 +684,8 @@ class SynthPresetHandler extends HTMLElement {
         this.elements.synthContainer.querySelectorAll('.knob').forEach(el => el.remove());
         this.elements.synthContainer.querySelectorAll('.synth-button').forEach(el => el.remove());
         this.elements.synthContainer.querySelectorAll('.jack').forEach(el => el.remove());
+        this.elements.synthContainer.querySelectorAll('.synth-fader').forEach(el => el.remove());
+        this.elements.synthContainer.querySelectorAll('.cable').forEach(el => el.remove());
 
         // Create knobs
         this.synthConfig.knobs.forEach(knobConfig => {
@@ -610,8 +720,11 @@ class SynthPresetHandler extends HTMLElement {
             
             document.addEventListener('mousemove', (e) => {
                 if (!isDragging) return;
-
-                const shift = 0.01 * -e.movementY;
+                
+                const isPrecisionMode = e.shiftKey;
+                // Adjust sensitivity based on Shift key
+                const sensitivity = isPrecisionMode ? 0.0002 : 0.01;
+                const shift = sensitivity * -e.movementY;
                 let newValue = knobConfig.value + shift;
                 newValue = Math.max(0, Math.min(1, newValue));
                 
@@ -621,6 +734,15 @@ class SynthPresetHandler extends HTMLElement {
 
             document.addEventListener('mouseup', () => {
                 isDragging = false;
+            });
+
+            knob.addEventListener('dblclick', (e) => {
+                e.stopPropagation();
+                const defaultKnob = this.defaultConfig.knobs.find(k => k.id === knobConfig.id);
+                if (defaultKnob) {
+                    knobConfig.value = defaultKnob.value;
+                    this.updateKnobRotation(knob, knobConfig);
+                }
             });
         });
    
@@ -643,7 +765,42 @@ class SynthPresetHandler extends HTMLElement {
                 button.classList.toggle('on');
             });
         });
-        
+
+        //create faders
+        this.synthConfig.faders?.forEach(faderConfig => {
+            const fader = document.createElement('div');
+            fader.className = 'synth-fader';
+            fader.id = faderConfig.id;
+            
+            // Create track and handle
+            const track = document.createElement('div');
+            track.className = 'fader-track';
+            
+            const handle = document.createElement('div');
+            handle.className = 'fader-handle';
+            handle.title = faderConfig.id;
+            
+            fader.appendChild(track);
+            fader.appendChild(handle);
+            this.elements.synthContainer.appendChild(fader);
+            
+            // Set initial value
+            faderConfig.value = faderConfig.default ?? 0.5;
+            this.updateFaderPosition(fader, faderConfig);
+            
+            // Add drag interaction
+            this.setupFaderDrag(fader, faderConfig);
+            
+            fader.addEventListener('dblclick', (e) => {
+                e.stopPropagation();
+                const defaultFader = this.defaultConfig.faders.find(k => k.id === faderConfig.id);
+                if (defaultFader) {
+                    faderConfig.value = defaultFader.value;
+                    this.updateFaderPosition(fader, faderConfig);
+                }
+            });
+        });
+                    
         // Create jacks
         this.synthConfig.jacks.forEach(jackConfig => {
             const jack = document.createElement('div');
@@ -705,6 +862,33 @@ class SynthPresetHandler extends HTMLElement {
                     jack.classList.add('active');
                 }
             });
+
+            jack.addEventListener('dblclick', (e) => {
+                e.stopPropagation();
+                if (jackConfig.connections.length > 0) {
+                    const defaultJack = this.defaultConfig.jacks.find(j => j.id === jackConfig.id);
+                    if (defaultJack) {
+                        jackConfig.connections = [...defaultJack.connections]; // Preserve default cables
+                        this.updateConnections();
+                    }
+                }
+                else
+                {
+                    const connectedJack = this.synthConfig.jacks.find(j => j.connections.includes(jackConfig.id));
+                    if(connectedJack)
+                    {
+                        console.log("ConnectedJack " + connectedJack.id);
+                        const defaultConnectedJack = this.defaultConfig.jacks.find(j => j.id === connectedJack.id);
+                        if (defaultConnectedJack) {
+                            if(!defaultConnectedJack.connections.includes(jackConfig.id))
+                            {
+                                connectedJack.connections = connectedJack.connections.filter(c => c != jackConfig.id);
+                                this.updateConnections();
+                            }
+                        }
+                    }
+                }
+            });
         });
         
         // Handle window resize
@@ -729,6 +913,14 @@ class SynthPresetHandler extends HTMLElement {
             reader.readAsText(file);
         });
 
+        //Reset state button, to reset all knobs, faders, jacks and buttons to defaul states.
+        this.elements.resetPresetBtn = this.shadowRoot.getElementById('reset-preset');
+            this.elements.resetPresetBtn.addEventListener('click', () => {
+            if (confirm("Reset all controls to default values?")) {
+                this.resetToDefaults();
+            }
+        });
+
         // Load preset from JSON file
         this.elements.loadPresetBtn.addEventListener('click', () => {
             this.elements.presetFileInput.click();
@@ -746,6 +938,7 @@ class SynthPresetHandler extends HTMLElement {
                 },
                 knobs: this.synthConfig.knobs.map(k => ({ id: k.id, value: k.value })),
                 buttons: this.synthConfig.buttons.map(b => ({ id: b.id, state: b.state })),
+                faders: this.synthConfig.faders.map(f => ({id: f.id, value: f.value })),
                 jacks: this.synthConfig.jacks.map(j => ({ id: j.id, connections: j.connections })),
                 audio: this.currentAudioData ? {
                     name: this.audioFileName,
@@ -754,7 +947,7 @@ class SynthPresetHandler extends HTMLElement {
                 } : null
             };
 
-            let presetName = preset.meta.author + '_' + preset.meta.name;
+            let presetName = preset.meta.author + '_' + preset.meta.number + '_' + preset.meta.name;
             presetName = this.sanitizePath(presetName);
             if(presetName.length === 0)
                 presetName = 'neutron-preset';
@@ -812,6 +1005,12 @@ class SynthPresetHandler extends HTMLElement {
             const jack = this.shadowRoot.getElementById(jackConfig.id);
             if (jack) this.updateJackPosition(jack, jackConfig);
         });
+
+        this.synthConfig.faders.forEach(faderConfig => {
+            const fader = this.shadowRoot.getElementById(faderConfig.id);
+            if (fader) this.updateFaderPosition(fader, faderConfig);
+        });
+        
         
         this.updateConnections();
     }
@@ -839,6 +1038,80 @@ class SynthPresetHandler extends HTMLElement {
         const range = config.maxAngle - config.minAngle;
         const rotation = (config.value * range) + config.minAngle;
         knob.style.transform = `rotate(${rotation}deg)`;
+    }
+
+    updateFaderPosition(fader, config) {
+        const containerRect = this.elements.synthContainer.getBoundingClientRect();
+        
+        // Set position
+        fader.style.left = `${config.x * containerRect.width}px`;
+        fader.style.top = `${config.y * containerRect.height}px`;
+        
+        // Set direction
+        fader.classList.toggle('horizontal', config.direction === 'horizontal');
+        
+        // Set dimensions
+        fader.style.setProperty('--length', `${config.length}px`);
+        fader.style.setProperty('--thickness', `${config.thickness ?? 15}px`);
+        
+        // Update handle position
+        const handle = fader.querySelector('.fader-handle');
+        const value = config.value ?? config.default ?? 0.5;
+        
+        if (config.direction === 'horizontal') {
+            handle.style.left = `${value * config.length}px`;
+        } else {
+            handle.style.bottom = `${value * config.length}px`;
+        }
+    }
+
+    setupFaderDrag(faderElement, faderConfig) {
+        let isDragging = false;
+        
+        const handle = faderElement.querySelector('.fader-handle');
+        const track = faderElement.querySelector('.fader-track');
+        
+        const startDrag = (e) => {
+            isDragging = true;
+            e.preventDefault();
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', stopDrag);
+        };
+        
+        const drag = (e) => {
+            if (!isDragging) return;
+            
+            const rect = track.getBoundingClientRect();
+            let newValue;
+            
+            if (faderConfig.direction === 'horizontal') {
+                const pos = e.clientX - rect.left;
+                newValue = Math.max(0, Math.min(1, pos / rect.width));
+            } else {
+                const pos = rect.bottom - e.clientY;
+                newValue = Math.max(0, Math.min(1, pos / rect.height));
+            }
+            
+            // Precision mode with Shift key
+            if (e.shiftKey) {
+                newValue = Math.round(newValue * 20) / 20; // 5% steps
+            }
+            
+            faderConfig.value = newValue;
+            this.updateFaderPosition(faderElement, faderConfig);
+        };
+        
+        const stopDrag = () => {
+            isDragging = false;
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mouseup', stopDrag);
+        };
+        
+        handle.addEventListener('mousedown', startDrag);
+        track.addEventListener('click', (e) => {
+            // Jump to click position
+            drag(e);
+        });
     }
 
     updateConnections() {
@@ -1066,6 +1339,15 @@ class SynthPresetHandler extends HTMLElement {
                     if (buttonElement) {
                         buttonElement.classList.toggle('on', buttonConfig.state);
                     }
+                }
+            });
+
+            preset.faders?.forEach(faderFromPreset => {
+                const faderConfig = this.synthConfig.faders.find(f => f.id === faderFromPreset.id);
+                if (faderConfig) {
+                    faderConfig.value = faderFromPreset.value;
+                    const faderElement = this.shadowRoot.getElementById(faderConfig.id);
+                    if (faderElement) this.updateFaderPosition(faderElement, faderConfig);
                 }
             });
 
