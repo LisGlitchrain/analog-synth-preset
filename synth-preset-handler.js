@@ -927,11 +927,22 @@ class SynthPresetHandler extends HTMLElement {
 
         //Reset state button, to reset all knobs, faders, jacks and buttons to defaul states.
         this.elements.resetPresetBtn = this.shadowRoot.getElementById('reset-preset');
-            this.elements.resetPresetBtn.addEventListener('click', () => {
-            if (confirm("Reset all controls to default values?")) {
-                this.resetToDefaults();
+            this.elements.resetPresetBtn.addEventListener('click', async () => 
+            {
+                if(this.isTrilium)
+                {
+                    const confirmed = await api.showConfirmDialog("Are you sure you want to reset preset state?");
+                    if(confirmed)
+                    {
+                        this.resetToDefaults();
+                    }
+                }
+                else if (confirm("Reset all controls to default values?")) 
+                {
+                    this.resetToDefaults();
+                }
             }
-        });
+        );
 
         // Load preset from JSON file
         this.elements.loadPresetBtn.addEventListener('click', () => {
