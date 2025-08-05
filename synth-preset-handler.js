@@ -253,7 +253,8 @@ class SynthPresetHandler extends HTMLElement {
     connectedCallback() {
         let template = `
         <style scoped>
-        #synth-container {
+        #synth-container 
+        {
             position: relative;
             width: 1217px;
             height: 671px;
@@ -463,6 +464,25 @@ class SynthPresetHandler extends HTMLElement {
                 border-radius: 5px;
             }
 
+            #other-controls {
+                position: absolute;
+                top: 32%;
+                left: 91.8%;
+                width: 6.5%;
+                height: 8%;
+                text-align: left;
+                padding: 0.5%;
+                background: #333;
+                border-radius: 5px;
+            }
+
+            #reset-preset {
+                height: 100%;
+                width: 90%;
+                margin: 0 5px;
+                padding: 5px 0px;
+            }
+
             #audio-controls button {
                 height: 100%;
                 width: 6%;
@@ -480,26 +500,6 @@ class SynthPresetHandler extends HTMLElement {
                 text-overflow: ellipsis;
                 white-space: nowrap;
                 vertical-align: middle;
-            }
-
-            //other controls
-            #other-controls {
-                position: absolute;
-                top: 32%;
-                left: 91%;
-                width: 8%;
-                height: 8%;
-                text-align: left;
-                padding: 0.5%;
-                background: #333;
-                border-radius: 5px;
-            }
-
-            #other-controls button {
-                height: 100%;
-                width: 6%;
-                margin: 0 5px;
-                padding: 5px 0px;
             }
 
             /* Position the overlay absolutely within the synth container */
@@ -616,6 +616,7 @@ class SynthPresetHandler extends HTMLElement {
                 <button id="audio-stop" disabled>Stop</button>
                 <span id="audio-info">No sample loaded</span>
             </div>
+
             <div id="other-controls">
                 <button id="reset-preset">Reset</button>
             </div>
