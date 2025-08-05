@@ -201,25 +201,26 @@ class SynthPresetHandler extends HTMLElement {
                 { id: 'out-sum2',      x: jackColumn5X, y: jackRow7Y, connections: [] },
                 { id: 'out-assign',    x: jackColumn6X, y: jackRow7Y, connections: [] },
             ],
+            //Faders examples
             "faders": [
-                { 
-                    "id": "volume", 
-                    "x": 0.3, 
-                    "y": 0.3,
-                    "length": 120,          // Pixel length
-                    "direction": "vertical", // or "horizontal"
-                    "default": 0.5,         // 0-1 range
-                    "thickness": 15         // Optional (default: 15px)
-                },
-                { 
-                    "id": "volume-2", 
-                    "x": 0.5, 
-                    "y": 0.3,
-                    "length": 120,          // Pixel length
-                    "direction": "horizontal", // or "horizontal"
-                    "default": 0.2,         // 0-1 range
-                    "thickness": 15         // Optional (default: 15px)
-                }
+            //     { 
+            //         "id": "volume", 
+            //         "x": 0.3, 
+            //         "y": 0.3,
+            //         "length": 120,          // Pixel length
+            //         "direction": "vertical", // or "horizontal"
+            //         "default": 0.5,         // 0-1 range
+            //         "thickness": 15         // Optional (default: 15px)
+            //     },
+            //     { 
+            //         "id": "volume-2", 
+            //         "x": 0.5, 
+            //         "y": 0.3,
+            //         "length": 120,          // Pixel length
+            //         "direction": "horizontal", // or "horizontal"
+            //         "default": 0.2,         // 0-1 range
+            //         "thickness": 15         // Optional (default: 15px)
+            //     }
             ]
         };
     }
