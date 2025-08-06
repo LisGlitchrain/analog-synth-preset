@@ -16,9 +16,12 @@ Current implementaion is about Behringer Neutron semi-modular synthesizer, but i
 - Pressing 'shift' key while dragging knob will change adjustment sensitivity from coarse to fine
 - Double click on knobs, buttons and faders will reset in to default value
 - Double click on jack will remove connections if they are not default
+- Works in local browser, in TriliumNext Notes as widget
 
 
-## Sample use
+## Usage
+
+### In web page
 
 ```html
 <!DOCTYPE html>
@@ -32,6 +35,11 @@ Current implementaion is about Behringer Neutron semi-modular synthesizer, but i
 </body>
 </html>
 ```
+
+### Bare project as is
+
+- Download project
+- Open 'index.html' with browser.
 
 ## Modifications for another synthesizers
 
