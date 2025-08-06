@@ -53,6 +53,7 @@ Places to modify can be found via text search for 'MODIFYING' comment nearby.
 ### getDefaultConfig method example
 
 In this example simple synthesizer is described (part of Neutron with extra faders).
+'id' is name or identifier of control, 'x' and 'y' are position coordinates relative to image. 'value', 'state', 'connections', 'default' are default states for knobs (normalized 0..1), buttons (true, false), jacks (id's of other jacks) and faders (normalized 0..1). Faders have some additional settings.
 
 ```javascript
     // These positions are relative to the synth image dimensions
@@ -115,7 +116,7 @@ In this example simple synthesizer is described (part of Neutron with extra fade
 
 If you want to add, for example, knob, just add line after 'osc2-width':
 ```javascript
-,//don't forget coma!
+,//don't forget comma!
  { id: 'new-osc',    x: 0.5,  y: 0.5, value: 0.5, minAngle: -90, maxAngle: 90 }
 ```
 Knob described above will have id (name) 'new-osc', be located approx in the center of synth picture, have default value 0.5 and will be rotated from -90 to 90 degrees with 0 degree is directed up (relative to web page). It is possible to set minAngle greater than maxAngle and their sum can exceed 360 degrees.
