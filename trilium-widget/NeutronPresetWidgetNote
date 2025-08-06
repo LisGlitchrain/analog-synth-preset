@@ -1,9 +1,3 @@
-/*
- * This defines a custom widget which displays number of words and characters in a current text note.
- * To be activated for a given note, add label 'wordCount' to the note, you can also make it inheritable and thus activate it for the whole subtree.
- * 
- * See it in action in "Books" and its subtree.
- */
 const TPL = `
 <div style="padding: 10px; border-top: 1px solid var(--main-border-color); contain: none;>
     <script src="http://127.0.0.1:37840/custom/synth/synth-preset-handler.js"></script>
@@ -18,9 +12,11 @@ class NeutronPresetWidget extends api.NoteContextAwareWidget
 
     isEnabled() 
     {       
-        return super.isEnabled()
-            && (
-            ((this.note.type === 'text' || this.note.type === 'book')  && this.note.hasLabel('neutronPresetWidget')) || (this.note.type === 'file' && this.note.mime === "application/x-neutron-preset-json"));
+        return super.isEnabled() && 
+            (
+                ((this.note.type === 'text' || this.note.type === 'book')  && this.note.hasLabel('neutronPresetWidget')) 
+                || (this.note.type === 'file' && this.note.mime === "application/x-neutron-preset-json")
+            );
     }
 
     doRender() 
@@ -41,7 +37,7 @@ class NeutronPresetWidget extends api.NoteContextAwareWidget
             this.comboAttachmentsOnChangeListenerIsAdded = true;
         }
 
-        const {content} = await note.getNoteComplement();
+        //const {content} = await note.getNoteComplement();
         this.$neutronPresetHandler[0].api = api;
         this.$neutronPresetHandler[0].currentNote = note;
         this.$neutronPresetHandler[0].initSynth();
@@ -94,8 +90,8 @@ class NeutronPresetWidget extends api.NoteContextAwareWidget
             }
         }
 
-        var attributes = note.getAttributes();
-        var noteId =  note.id;
+        // var attributes = note.getAttributes();
+        // var noteId =  note.id;
         this.neutronPresetSpecialURLPath = note.getLabelValue("neutronPresetSpecialURLPath");
         var neutronPresetSpecialURLNames = note.getLabelValue("neutronPresetSpecialURLNames");
         if(neutronPresetSpecialURLNames != undefined)

@@ -1,5 +1,7 @@
-class SynthPresetHandler extends HTMLElement {
-    constructor() {
+class SynthPresetHandler extends HTMLElement 
+{
+    constructor() 
+    {
         super();
         this.isTrilium = this.getAttribute('isTrilium') || false;
         this.synthConfig = this.getDefaultConfig();
@@ -225,7 +227,8 @@ class SynthPresetHandler extends HTMLElement {
         };
     }
 
-    resetToDefaults() {
+    resetToDefaults() 
+    {
         // Restore config values
         this.synthConfig = JSON.parse(JSON.stringify(this.defaultConfig));
         
@@ -251,7 +254,8 @@ class SynthPresetHandler extends HTMLElement {
         return this.m_isInitialized;
     }
 
-    connectedCallback() {
+    connectedCallback() 
+    {
         let template = `
         <style scoped>
         #synth-container 
@@ -640,9 +644,11 @@ class SynthPresetHandler extends HTMLElement {
         this.initEventListeners();
     }
 
-    initAudio() {
+    initAudio() 
+    {
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        this.elements.audioAdd.addEventListener('click', () => {
+        this.elements.audioAdd.addEventListener('click', () => 
+            {
                 this.elements.audioFileInput.click();
             });
         this.elements.audioFileInput.addEventListener('change', this.handleAudioUpload.bind(this));
@@ -650,8 +656,10 @@ class SynthPresetHandler extends HTMLElement {
         this.elements.audioStop.addEventListener('click', this.stopAudio.bind(this));
     }
   
-    async decodeAudioData(dataURL) {
-        try {
+    async decodeAudioData(dataURL) 
+    {
+        try 
+        {
             const response = await fetch(dataURL);
             const arrayBuffer = await response.arrayBuffer();
             this.audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
@@ -660,7 +668,9 @@ class SynthPresetHandler extends HTMLElement {
             this.elements.audioInfo.textContent = this.audioFileName;
             this.elements.audioPlay.disabled = false;
             this.elements.audioStop.disabled = false;
-        } catch (error) {
+        } 
+        catch (error) 
+        {
             console.error("Error decoding audio:", error);
         }
     }
@@ -692,7 +702,8 @@ class SynthPresetHandler extends HTMLElement {
     }
 
     // Initialize the synthesizer UI
-    initSynth() {
+    initSynth()
+    {
         this.elements.synthContainer.querySelectorAll('.knob').forEach(el => el.remove());
         this.elements.synthContainer.querySelectorAll('.synth-button').forEach(el => el.remove());
         this.elements.synthContainer.querySelectorAll('.jack').forEach(el => el.remove());
@@ -700,7 +711,8 @@ class SynthPresetHandler extends HTMLElement {
         this.elements.synthContainer.querySelectorAll('.cable').forEach(el => el.remove());
 
         // Create knobs
-        this.synthConfig.knobs.forEach(knobConfig => {
+        this.synthConfig.knobs.forEach(knobConfig => 
+        {
             const knob = document.createElement('div');
             knob.className = 'knob';
             knob.id = knobConfig.id;
@@ -720,7 +732,8 @@ class SynthPresetHandler extends HTMLElement {
             let startAngle = 0;
             let startValue = knobConfig.value;
             
-            knob.addEventListener('mousedown', (e) => {
+            knob.addEventListener('mousedown', (e) => 
+            {
                 isDragging = true;
                 const rect = knob.getBoundingClientRect();
                 const centerX = rect.left + rect.width / 2;
@@ -730,7 +743,8 @@ class SynthPresetHandler extends HTMLElement {
                 e.preventDefault();
             });
             
-            document.addEventListener('mousemove', (e) => {
+            document.addEventListener('mousemove', (e) => 
+            {
                 if (!isDragging) return;
                 
                 const isPrecisionMode = e.shiftKey;
@@ -744,11 +758,13 @@ class SynthPresetHandler extends HTMLElement {
                 this.updateKnobRotation(knob, knobConfig);
             });
 
-            document.addEventListener('mouseup', () => {
+            document.addEventListener('mouseup', () => 
+            {
                 isDragging = false;
             });
 
-            knob.addEventListener('dblclick', (e) => {
+            knob.addEventListener('dblclick', (e) => 
+            {
                 e.stopPropagation();
                 const defaultKnob = this.defaultConfig.knobs.find(k => k.id === knobConfig.id);
                 if (defaultKnob) {
@@ -759,27 +775,31 @@ class SynthPresetHandler extends HTMLElement {
         });
    
         // Create buttons
-        this.synthConfig.buttons.forEach(buttonConfig => {
+        this.synthConfig.buttons.forEach(buttonConfig => 
+        {
             const button = document.createElement('div');
             button.className = 'synth-button';
             button.id = buttonConfig.id;
             button.title = buttonConfig.id;
 
-            if (buttonConfig.state) {
+            if (buttonConfig.state) 
+            {
                 button.classList.add('on');
             }
             
             this.elements.synthContainer.appendChild(button);
             this.updateButtonPosition(button, buttonConfig);
             
-            button.addEventListener('click', () => {
+            button.addEventListener('click', () => 
+            {
                 buttonConfig.state = !buttonConfig.state;
                 button.classList.toggle('on');
             });
         });
 
         //create faders
-        this.synthConfig.faders?.forEach(faderConfig => {
+        this.synthConfig.faders?.forEach(faderConfig => 
+        {
             const fader = document.createElement('div');
             fader.className = 'synth-fader';
             fader.id = faderConfig.id;
@@ -803,10 +823,12 @@ class SynthPresetHandler extends HTMLElement {
             // Add drag interaction
             this.setupFaderDrag(fader, faderConfig);
             
-            fader.addEventListener('dblclick', (e) => {
+            fader.addEventListener('dblclick', (e) => 
+            {
                 e.stopPropagation();
                 const defaultFader = this.defaultConfig.faders.find(k => k.id === faderConfig.id);
-                if (defaultFader) {
+                if (defaultFader) 
+                {
                     faderConfig.value = defaultFader.value;
                     this.updateFaderPosition(fader, faderConfig);
                 }
@@ -814,7 +836,8 @@ class SynthPresetHandler extends HTMLElement {
         });
                     
         // Create jacks
-        this.synthConfig.jacks.forEach(jackConfig => {
+        this.synthConfig.jacks.forEach(jackConfig => 
+        {
             const jack = document.createElement('div');
             jack.className = 'jack';
             jack.id = jackConfig.id;
@@ -823,12 +846,15 @@ class SynthPresetHandler extends HTMLElement {
             this.elements.synthContainer.appendChild(jack);
             this.updateJackPosition(jack, jackConfig);
             
-            jack.addEventListener('mousedown', (e) => {
+            jack.addEventListener('mousedown', (e) => 
+            {
                 e.stopPropagation();
                 
-                if (this.activeJack) {
+                if (this.activeJack) 
+                {
                     // Complete the connection
-                    if (this.activeJack !== jackConfig.id) {
+                    if (this.activeJack !== jackConfig.id) 
+                    {
                         //identify out jack
                         // Check if connection already exists
                         const otherJack = this.synthConfig.jacks.find(j => j.id === this.activeJack);
@@ -844,10 +870,13 @@ class SynthPresetHandler extends HTMLElement {
                             inJack = jackConfig;
                         }
 
-                        if (!anyConnectionExists) {
+                        if (!anyConnectionExists) 
+                        {
                             outJack.connections.push(inJack.id);
                             this.updateConnections();
-                        } else {
+                        } 
+                        else 
+                        {
                             let jackWithConnection;
                             let jackConnectedTo;
                             if(existingThisConnection)
@@ -868,18 +897,23 @@ class SynthPresetHandler extends HTMLElement {
                     
                     this.shadowRoot.querySelectorAll('.jack').forEach(j => j.classList.remove('active'));
                     this.activeJack = null;
-                } else {
+                } 
+                else 
+                {
                     // Start a new connection
                     this.activeJack = jackConfig.id;
                     jack.classList.add('active');
                 }
             });
 
-            jack.addEventListener('dblclick', (e) => {
+            jack.addEventListener('dblclick', (e) => 
+            {
                 e.stopPropagation();
-                if (jackConfig.connections.length > 0) {
+                if (jackConfig.connections.length > 0) 
+                {
                     const defaultJack = this.defaultConfig.jacks.find(j => j.id === jackConfig.id);
-                    if (defaultJack) {
+                    if (defaultJack) 
+                    {
                         jackConfig.connections = [...defaultJack.connections]; // Preserve default cables
                         this.updateConnections();
                     }
@@ -907,18 +941,24 @@ class SynthPresetHandler extends HTMLElement {
         window.addEventListener('resize', this.updateAllPositions);
     }
 
-    initEventListeners() {
+    initEventListeners() 
+    {
         // This should already exist in your code
-        this.elements.presetFileInput.addEventListener('change', (e) => {
+        this.elements.presetFileInput.addEventListener('change', (e) => 
+        {
             const file = e.target.files[0];
             if (!file) return;
             
             const reader = new FileReader();
-            reader.onload = (event) => {
-                try {
+            reader.onload = (event) => 
+            {
+                try 
+                {
                     const preset = JSON.parse(event.target.result);
                     this.loadPreset(preset);
-                } catch (error) {
+                }
+                catch (error) 
+                {
                     alert("Error loading preset file: " + error.message);
                 }
             };
@@ -927,30 +967,31 @@ class SynthPresetHandler extends HTMLElement {
 
         //Reset state button, to reset all knobs, faders, jacks and buttons to defaul states.
         this.elements.resetPresetBtn = this.shadowRoot.getElementById('reset-preset');
-            this.elements.resetPresetBtn.addEventListener('click', async () => 
+        this.elements.resetPresetBtn.addEventListener('click', async () => 
+        {
+            if(this.isTrilium)
             {
-                if(this.isTrilium)
-                {
-                    const confirmed = await api.showConfirmDialog("Are you sure you want to reset preset state?");
-                    if(confirmed)
-                    {
-                        this.resetToDefaults();
-                    }
-                }
-                else if (confirm("Reset all controls to default values?")) 
+                const confirmed = await api.showConfirmDialog("Are you sure you want to reset preset state?");
+                if(confirmed)
                 {
                     this.resetToDefaults();
                 }
             }
-        );
+            else if (confirm("Reset all controls to default values?")) 
+            {
+                this.resetToDefaults();
+            }
+        });
 
         // Load preset from JSON file
-        this.elements.loadPresetBtn.addEventListener('click', () => {
+        this.elements.loadPresetBtn.addEventListener('click', () => 
+        {
             this.elements.presetFileInput.click();
         });
 
         // Save preset to JSON file
-        this.elements.savePresetBtn.addEventListener('click', () => {
+        this.elements.savePresetBtn.addEventListener('click', () => 
+        {
             const preset = {
                 meta: {
                     author: this.elements.presetAuthor.value || 'Anonymous',
@@ -981,16 +1022,16 @@ class SynthPresetHandler extends HTMLElement {
             {
                 const parentNote = api.getActiveContextNote();      
                 this.api.runOnBackend((parentId, presetName, jsonString) =>
-                    {
-                        // Create a new note with the JSON content
-                        const newNote = api.createNewNote({
-                            parentNoteId: parentId,
-                            title: presetName, // Name it as a JSON file
-                            type: "file", // Important for file downloads
-                            mime: "application/x-neutron-preset-json", // Set MIME type
-                            content: jsonString, // The actual JSON data
-                        }); 
-                    }, [parentNote.noteId, presetName, presetStr]);
+                {
+                    // Create a new note with the JSON content
+                    const newNote = api.createNewNote({
+                        parentNoteId: parentId,
+                        title: presetName, // Name it as a JSON file
+                        type: "file", // Important for file downloads
+                        mime: "application/x-neutron-preset-json", // Set MIME type
+                        content: jsonString, // The actual JSON data
+                    }); 
+                }, [parentNote.noteId, presetName, presetStr]);
             }
             else
             {
@@ -1010,26 +1051,31 @@ class SynthPresetHandler extends HTMLElement {
     }
 
     // Update positions of all elements based on container size
-    updateAllPositions() {
+    updateAllPositions() 
+    {
         if(typeof this.synthConfig === 'undefined')
             return;
 
-        this.synthConfig.knobs.forEach(knobConfig => {
+        this.synthConfig.knobs.forEach(knobConfig => 
+        {
             const knob = this.shadowRoot.getElementById(knobConfig.id);
             if (knob) this.updateKnobPosition(knob, knobConfig);
         });
         
-        this.synthConfig.buttons.forEach(buttonConfig => {
+        this.synthConfig.buttons.forEach(buttonConfig => 
+        {
             const button = this.shadowRoot.getElementById(buttonConfig.id);
             if (button) this.updateButtonPosition(button, buttonConfig);
         });
         
-        this.synthConfig.jacks.forEach(jackConfig => {
+        this.synthConfig.jacks.forEach(jackConfig => 
+        {
             const jack = this.shadowRoot.getElementById(jackConfig.id);
             if (jack) this.updateJackPosition(jack, jackConfig);
         });
 
-        this.synthConfig.faders.forEach(faderConfig => {
+        this.synthConfig.faders.forEach(faderConfig =>
+        {
             const fader = this.shadowRoot.getElementById(faderConfig.id);
             if (fader) this.updateFaderPosition(fader, faderConfig);
         });
@@ -1038,32 +1084,37 @@ class SynthPresetHandler extends HTMLElement {
         this.updateConnections();
     }
 
-    updateKnobPosition(knob, config) {
+    updateKnobPosition(knob, config) 
+    {
         const containerRect = this.elements.synthContainer.getBoundingClientRect();
         knob.style.left = `${config.x * containerRect.width}px`;
         knob.style.top = `${config.y * containerRect.height}px`;
     }
     
-    updateButtonPosition(button, config) {
+    updateButtonPosition(button, config) 
+    {
         const containerRect = this.elements.synthContainer.getBoundingClientRect();
         button.style.left = `${config.x * containerRect.width}px`;
         button.style.top = `${config.y * containerRect.height}px`;
     }
     
-    updateJackPosition(jack, config) {
+    updateJackPosition(jack, config) 
+    {
         const containerRect = this.elements.synthContainer.getBoundingClientRect();
         jack.style.left = `${config.x * containerRect.width - 6}px`;
         jack.style.top = `${config.y * containerRect.height - 6}px`;
     }
     
-    updateKnobRotation(knob, config) {
+    updateKnobRotation(knob, config) 
+    {
         // Convert value (0-1) to rotation (minAngle to maxAngle degrees)
         const range = config.maxAngle - config.minAngle;
         const rotation = (config.value * range) + config.minAngle;
         knob.style.transform = `rotate(${rotation}deg)`;
     }
 
-    updateFaderPosition(fader, config) {
+    updateFaderPosition(fader, config) 
+    {
         const containerRect = this.elements.synthContainer.getBoundingClientRect();
         
         // Set position
@@ -1081,42 +1132,52 @@ class SynthPresetHandler extends HTMLElement {
         const handle = fader.querySelector('.fader-handle');
         const value = config.value ?? config.default ?? 0.5;
         
-        if (config.direction === 'horizontal') {
+        if (config.direction === 'horizontal') 
+        {
             handle.style.left = `${value * config.length}px`;
-        } else {
+        } 
+        else 
+        {
             handle.style.bottom = `${value * config.length}px`;
         }
     }
 
-    setupFaderDrag(faderElement, faderConfig) {
+    setupFaderDrag(faderElement, faderConfig) 
+    {
         let isDragging = false;
         
         const handle = faderElement.querySelector('.fader-handle');
         const track = faderElement.querySelector('.fader-track');
         
-        const startDrag = (e) => {
+        const startDrag = (e) => 
+        {
             isDragging = true;
             e.preventDefault();
             document.addEventListener('mousemove', drag);
             document.addEventListener('mouseup', stopDrag);
         };
         
-        const drag = (e) => {
+        const drag = (e) => 
+        {
             if (!isDragging) return;
             
             const rect = track.getBoundingClientRect();
             let newValue;
             
-            if (faderConfig.direction === 'horizontal') {
+            if (faderConfig.direction === 'horizontal') 
+            {
                 const pos = e.clientX - rect.left;
                 newValue = Math.max(0, Math.min(1, pos / rect.width));
-            } else {
+            } 
+            else 
+            {
                 const pos = rect.bottom - e.clientY;
                 newValue = Math.max(0, Math.min(1, pos / rect.height));
             }
             
             // Precision mode with Shift key
-            if (e.shiftKey) {
+            if (e.shiftKey) 
+            {
                 newValue = Math.round(newValue * 20) / 20; // 5% steps
             }
             
@@ -1124,20 +1185,23 @@ class SynthPresetHandler extends HTMLElement {
             this.updateFaderPosition(faderElement, faderConfig);
         };
         
-        const stopDrag = () => {
+        const stopDrag = () => 
+        {
             isDragging = false;
             document.removeEventListener('mousemove', drag);
             document.removeEventListener('mouseup', stopDrag);
         };
         
         handle.addEventListener('mousedown', startDrag);
-        track.addEventListener('click', (e) => {
+        track.addEventListener('click', (e) => 
+        {
             // Jump to click position
             drag(e);
         });
     }
 
-    updateConnections() {
+    updateConnections() 
+    {
         // Remove all existing cables
         this.elements.synthContainer.querySelectorAll('.cable').forEach(el => el.remove());
         this.cables = [];
@@ -1153,14 +1217,17 @@ class SynthPresetHandler extends HTMLElement {
         ];
         
         // Update jack states
-        this.synthConfig.jacks.forEach(jackConfig => {
+        this.synthConfig.jacks.forEach(jackConfig => 
+        {
             const jack = this.shadowRoot.getElementById(jackConfig.id);
             jack.setAttribute('title', jack.id)
             jack.classList.remove('connected');
         });
-        this.synthConfig.jacks.forEach(jackConfig => {
+        this.synthConfig.jacks.forEach(jackConfig => 
+        {
             const jack = this.shadowRoot.getElementById(jackConfig.id);
-            if (jackConfig.connections.length > 0) {
+            if (jackConfig.connections.length > 0) 
+            {
                 jack.classList.add('connected');
                 let title = jack.getAttribute('title');
                 jackConfig.connections.forEach(id =>
@@ -1174,16 +1241,19 @@ class SynthPresetHandler extends HTMLElement {
         });
         
         // Create new cables for all connections
-        this.synthConfig.jacks.forEach((jackConfig, jackIndex) => {
+        this.synthConfig.jacks.forEach((jackConfig, jackIndex) => 
+        {
             const fromJack = this.shadowRoot.getElementById(jackConfig.id);
             const fromRect = fromJack.getBoundingClientRect();
             const fromX = fromRect.left + fromRect.width / 2;
             const fromY = fromRect.top + fromRect.height / 2;
             
-            jackConfig.connections.forEach((connectionId, connIndex) => {
+            jackConfig.connections.forEach((connectionId, connIndex) => 
+            {
                 const toJack = this.shadowRoot.getElementById(connectionId);
                 const toJackIndex = this.synthConfig.jacks.findIndex(jack => jack.id === toJack.id);
-                if (toJack) {
+                if (toJack) 
+                {
                     const toRect = toJack.getBoundingClientRect();
                     const toX = toRect.left + toRect.width / 2;
                     const toY = toRect.top + toRect.height / 2;
@@ -1197,7 +1267,8 @@ class SynthPresetHandler extends HTMLElement {
                     cable.style.borderColor = wireColors[colorIndex];
                     cable.style.backgroundColor = wireColors[colorIndex];
                     
-                    if (true) {
+                    if (true) 
+                    {
                         cable.classList.add('curved');
                         cable.style.position = 'absolute';
                         cable.style.left = 0;
@@ -1226,7 +1297,9 @@ class SynthPresetHandler extends HTMLElement {
                         }
 
                         this.createCurvedCable(cable, fromXCorrected, fromYCorrected, toXCorrected, toYCorrected, wireColors[colorIndex], jackConfig.id, toJack.id);
-                    } else {
+                    } 
+                    else 
+                    {
                         //just in case svg-method is not working.
                         this.createStraightCable(cable, fromX, fromY, toX, toY);
                     }
@@ -1238,7 +1311,8 @@ class SynthPresetHandler extends HTMLElement {
         });
     }
 
-    createStraightCable(cable, fromX, fromY, toX, toY) {
+    createStraightCable(cable, fromX, fromY, toX, toY) 
+    {
         const length = Math.sqrt(Math.pow(toX - fromX, 2) + Math.pow(toY - fromY, 2));
         const angle = Math.atan2(toY - fromY, toX - fromX) * (180 / Math.PI);
         
@@ -1252,7 +1326,8 @@ class SynthPresetHandler extends HTMLElement {
         cable.style.transform = `rotate(${angle}deg)`;
     }
 
-    createCurvedCable(cable, fromX, fromY, toX, toY, color, fromId, toId) {
+    createCurvedCable(cable, fromX, fromY, toX, toY, color, fromId, toId)
+    {
         const containerRect = this.elements.synthContainer.getBoundingClientRect();
         const relativeFromX = fromX - containerRect.left;
         const relativeFromY = fromY - containerRect.top;
@@ -1288,7 +1363,8 @@ class SynthPresetHandler extends HTMLElement {
         cable.appendChild(svg);
     }
 
-    sanitizePath(path) {
+    sanitizePath(path) 
+    {
         // Define a regex for common disallowed characters in Windows file paths:
         // \ / : * ? " < > |
         // The characters need to be escaped in the regex.
@@ -1301,7 +1377,8 @@ class SynthPresetHandler extends HTMLElement {
     //Used to load preset from TriliumNext Notes
     async loadFileURL(url)
     {
-        try {
+        try 
+        {
             // First fetch the response
             const response = await fetch(url);
 
@@ -1313,26 +1390,33 @@ class SynthPresetHandler extends HTMLElement {
             
             // Parse the response as JSON
             const jsonData = await response.json();
-        this.loadPreset(jsonData);
-        } catch (error) {
+            this.loadPreset(jsonData);
+        } 
+        catch (error) 
+        {
             console.error('Error loading JSON:', error);
         }
     }
 
     // Complete loadPreset function
-    async loadPreset(presetData) {
-        try {
+    async loadPreset(presetData) 
+    {
+        try 
+        {
             // Parse the preset data (if it's a string)
             const preset = typeof presetData === 'string' ? JSON.parse(presetData) : presetData;
 
             // Load metadata
-            if (preset.meta) {
+            if (preset.meta) 
+            {
                 this.elements.presetAuthor.value = preset.meta.author || '';
                 this.elements.presetNumber.value = preset.meta.number || 1;
                 this.elements.presetName.value = preset.meta.name || '';
                 this.elements.presetDate.innerText = preset.meta.date || '';
                 this.elements.presetNotes.value = preset.meta.notes || '';
-            } else {
+            } 
+            else 
+            {
                 // Default values if loading old preset without metadata
                 this.elements.presetAuthor.value = '';
                 this.elements.presetNumber.value = 1;
@@ -1342,32 +1426,40 @@ class SynthPresetHandler extends HTMLElement {
             }
 
             // Load knobs
-            preset.knobs.forEach(knobFromPreset => {
+            preset.knobs.forEach(knobFromPreset => 
+            {
                 const knobConfig = this.synthConfig.knobs.find(k => k.id === knobFromPreset.id);
-                if (knobConfig) {
+                if (knobConfig)
+                {
                     knobConfig.value = knobFromPreset.value;
                     const knobElement = this.shadowRoot.getElementById(knobConfig.id);
-                    if (knobElement) {
+                    if (knobElement) 
+                    {
                         this.updateKnobRotation(knobElement, knobConfig);
                     }
                 }
             });
 
             // Load buttons
-            preset.buttons.forEach(synthButtonFromPreset => {
+            preset.buttons.forEach(synthButtonFromPreset =>
+            {
                 const buttonConfig = this.synthConfig.buttons.find(b => b.id === synthButtonFromPreset.id);
-                if (buttonConfig) {
+                if (buttonConfig)
+                {
                     buttonConfig.state = synthButtonFromPreset.state;
                     const buttonElement = this.shadowRoot.getElementById(buttonConfig.id);
-                    if (buttonElement) {
+                    if (buttonElement) 
+                    {
                         buttonElement.classList.toggle('on', buttonConfig.state);
                     }
                 }
             });
 
-            preset.faders?.forEach(faderFromPreset => {
+            preset.faders?.forEach(faderFromPreset => 
+            {
                 const faderConfig = this.synthConfig.faders.find(f => f.id === faderFromPreset.id);
-                if (faderConfig) {
+                if (faderConfig) 
+                {
                     faderConfig.value = faderFromPreset.value;
                     const faderElement = this.shadowRoot.getElementById(faderConfig.id);
                     if (faderElement) this.updateFaderPosition(faderElement, faderConfig);
@@ -1375,13 +1467,16 @@ class SynthPresetHandler extends HTMLElement {
             });
 
             // Load jacks and connections
-            this.synthConfig.jacks.forEach(jackConfig => {
+            this.synthConfig.jacks.forEach(jackConfig => 
+            {
                 jackConfig.connections = [];
             });
             
-            preset.jacks.forEach(jackFromPreset => {
+            preset.jacks.forEach(jackFromPreset => 
+            {
                 const jackConfig = this.synthConfig.jacks.find(j => j.id === jackFromPreset.id);
-                if (jackConfig) {
+                if (jackConfig) 
+                {
                     jackConfig.connections = [...jackFromPreset.connections];
                 }
             });
@@ -1389,16 +1484,19 @@ class SynthPresetHandler extends HTMLElement {
             this.updateConnections();
 
             // Load audio if it exists in the preset
-            if (preset.audio) {
+            if (preset.audio)
+            {
                 this.currentAudioData = preset.audio.data;
                 this.audioFileName = preset.audio.name || 'sample';
                 this.audioFileType = preset.audio.type || 'audio/mpeg';
-                try {
+                try 
+                {
                     const byteString = atob(preset.audio.data);
                     const arrayBuffer = new ArrayBuffer(byteString.length);
                     const uintArray = new Uint8Array(arrayBuffer);
                     
-                    for (let i = 0; i < byteString.length; i++) {
+                    for (let i = 0; i < byteString.length; i++)
+                    {
                         uintArray[i] = byteString.charCodeAt(i);
                     }
                     
@@ -1409,10 +1507,14 @@ class SynthPresetHandler extends HTMLElement {
                     this.elements.audioInfo.textContent = preset.audio.name;
                     this.elements.audioPlay.disabled = false;
                     this.elements.audioStop.disabled = false;
-                } catch (error) {
+                } 
+                catch (error) 
+                {
                     console.error("Error loading audio from preset:", error);
                 }
-            } else {
+            } 
+            else 
+            {
                 this.audioBuffer = null;
                 this.elements.audioInfo.textContent = "No sample loaded";
                 this.elements.audioPlay.disabled = true;
@@ -1420,20 +1522,24 @@ class SynthPresetHandler extends HTMLElement {
             }
 
             console.log("Preset loaded successfully");
-        } catch (error) {
+        } 
+        catch (error)
+        {
             console.error("Error loading preset:", error);
             alert("Error loading preset: " + error.message);
         }
     }
     
-    async handleAudioUpload(e) {
+    async handleAudioUpload(e)
+    {
         const file = e.target.files[0];
         if (!file) return;
         
         this.audioFileName = file.name;
         this.audioFileType = file.type;
         
-        try {
+        try
+        {
             const arrayBuffer = await file.arrayBuffer();
             this.audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
             
@@ -1443,18 +1549,22 @@ class SynthPresetHandler extends HTMLElement {
             
             // Store the audio data as base64 for saving in preset
             const reader = new FileReader();
-            reader.onload = (event) => {
+            reader.onload = (event) => 
+            {
                 // This will be stored in the preset
                 this.currentAudioData = event.target.result.split(',')[1];
             };
             reader.readAsDataURL(file);
-        } catch (error) {
+        } 
+        catch (error) 
+        {
             console.error("Error loading audio:", error);
             alert("Error loading audio file");
         }
     }
 
-    playAudio() {
+    playAudio() 
+    {
         if (!this.audioBuffer) return;
         this.stopAudio();
         
@@ -1464,16 +1574,20 @@ class SynthPresetHandler extends HTMLElement {
         this.audioSource.start();
     }
 
-    stopAudio() {
-        if (this.audioSource) {
+    stopAudio() 
+    {
+        if (this.audioSource) 
+        {
             this.audioSource.stop();
             this.audioSource = null;
         }
     }
 
-    disconnectedCallback() {
+    disconnectedCallback() 
+    {
         // Cleanup
-        if (this.audioSource) {
+        if (this.audioSource) 
+        {
             this.audioSource.stop();
         }
     }
