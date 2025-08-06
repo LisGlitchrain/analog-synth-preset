@@ -610,8 +610,7 @@ class SynthPresetHandler extends HTMLElement
             <div id="controls">
                 <button id="save-preset">Save Preset</button>
                 <button id="load-preset">Load Preset</button>
-                <!-- .json is FORCED to be here. For some strange reason Trilium just breacks with .ntr extension -->
-                <input type="file" id="preset-file" accept=".json" style="display: none;">
+                <input type="file" id="preset-file" accept=".ntr" style="display: none;">
             </div>
 
             <div id="audio-controls">
@@ -633,7 +632,7 @@ class SynthPresetHandler extends HTMLElement
         if(this.isTrilium)
         {
             template = template.replace('synth-background.jpg', "http://127.0.0.1:37840/custom/synth/synth-background.jpg");
-            template = template.replace('<input type="file" id="preset-file" accept=".json" style="display: none;">', '<input type="file" id="preset-file" accept=".json" style="display: none;"><select id="comboAttachments" title="Select file from attachment, subtree notes or custom resource to load."></select>');
+            template = template.replace('<input type="file" id="preset-file" accept=".ntr" style="display: none;">', '<input type="file" id="preset-file" accept=".ntr" style="display: none;"><select id="comboAttachments" title="Select file from attachment, subtree notes or custom resource to load."></select>');
         }
         this.shadowRoot.innerHTML = template;
 
