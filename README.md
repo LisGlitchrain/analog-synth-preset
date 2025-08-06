@@ -5,6 +5,9 @@ This is a project to conveniently create, save and represent patches for analog 
 Current implementaion is about Behringer Neutron semi-modular synthesizer, but is can be configures for any other synth that consists of knobs, buttons, faders and patch cables.
 
 ## Capabilities
+
+<img src="./.github/images/neutron-path-demo.gif" alt="demo of configuring patch for Neutron" height=696 width=1280>
+
 - Draw adjustable knobs, buttons, faders and patch cables above synth image and also draw meta data
 - Automatically timestamp preset
 - Attach and playback audiofile (.wav, .mp3, .ogg)
@@ -31,6 +34,7 @@ Current implementaion is about Behringer Neutron semi-modular synthesizer, but i
 ```
 
 ## Modifications for another synthesizers
+
 To use with another synth several changes are needed in 'synth-preset-handler.js':
 - Adjust 'getDefaultConfig' method so that controls are mirorring those on a target
 - Set image's width and height in method 'connectedCallback' ('#synth-container' css style in template)
@@ -39,6 +43,7 @@ It is also desired to change synth-background.jpg or path to image can be modifi
 
 
 ## TriliumNext Notes
+
 Initial intent was to create and store patches in TriliumNext Notes app (working locally), so release contains notes that can be loaded into the app.
 
 ### Trilium Instructions
@@ -47,11 +52,18 @@ Initial intent was to create and store patches in TriliumNext Notes app (working
 
 Resources (scripts, notes) must be available at default Trilium's URL: http://127.0.0.1:37840/ If address differs, it needs adjustments in NeutronPresetWidgetNote and synth-preset-handler.js notes.
 
+#### Installation
+
+- Download .zip with latest release version of widget
+- Select desired note in Trilium to append widget notes to
+- Import notes
+- Remove ‘disabled:’ from owned attributes in imported notes (not attributes! only ‘disabled:’ part)
+
 #### Widget usage
 
 Widget will appear when preset-note is selected (note type is ‘file’).
 
-To use widget in other notes ('text' and ‘book’), set owner attribute ‘#neutronPresetWidget’
+To use widget in other notes ('text' and ‘book’), set owned attribute ‘#neutronPresetWidget’
 
 Presets can be loaded from disk with button or from Trilium with dropdown.
 
