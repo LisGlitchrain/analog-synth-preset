@@ -48,7 +48,81 @@ To use with another synth several changes are needed in 'synth-preset-handler.js
 - Set image's width and height in method 'connectedCallback' ('#synth-container' css style in template)
 
 It is also desired to change synth-background.jpg or path to image can be modified in 'synth-preset-handler.js'.
+Places to modify can be found via text search for 'MODIFYING' comment nearby.
 
+### getDefaultConfig method example
+
+In this example simple synthesizer is described (part of Neutron with extra faders).
+
+```javascript
+    // These positions are relative to the synth image dimensions
+    // You'll need to adjust these based on your actual synth image
+    knobs: [
+        { id: 'osc1-tune',     x: 0.050,   y: 0.576, value: 0.5, minAngle: -152, maxAngle: 152 },
+        { id: 'osc1-shape',    x: 0.050,   y: 0.730, value: 0.5, minAngle: -152, maxAngle: 152 },
+        { id: 'osc1-width',    x: 0.050,   y: 0.862, value: 0.5, minAngle: -152, maxAngle: 152 },
+        { id: 'osc2-tune',     x: 0.1685,  y: 0.576, value: 0.5, minAngle: -152, maxAngle: 152 },
+        { id: 'osc2-shape',    x: 0.1685,  y: 0.730, value: 0.5, minAngle: -152, maxAngle: 152 },
+        { id: 'osc2-width',    x: 0.1685,  y: 0.862, value: 0.5, minAngle: -152, maxAngle: 152 }
+    ],
+    
+    buttons: [
+        { id: 'osc1-range-8',                x: 0.108,  y: 0.655,  state: false },
+        { id: 'osc1-range-16',               x: 0.108,  y: 0.687,  state: false },
+        { id: 'osc1-range-32',               x: 0.108,  y: 0.721,  state: false },
+        { id: 'osc2-range-8',                x: 0.1345, y: 0.655,  state: false },
+        { id: 'osc2-range-16',               x: 0.1345, y: 0.687,  state: false },
+        { id: 'osc2-range-32',               x: 0.1345, y: 0.721,  state: false },
+        { id: 'osc-sync',                    x: 0.12,   y: 0.84,   state: false },
+        { id: 'paraphonic',                  x: 0.12,   y: 0.9,    state: false },
+        { id: 'vcf-mode-low-cut',            x: 0.235,  y: 0.54,   state: false },
+        { id: 'vcf-mode-band-pass',          x: 0.235,  y: 0.568,  state: false },
+        { id: 'vcf-mode-high-cut',           x: 0.235,  y: 0.596,  state: true  }
+    ],
+    
+    jacks: [
+        { id: 'in-osc1',       x: 0.7627,       y: 0.495, connections: [] },
+        { id: 'in-osc2',       x: 0.7965666667, y: 0.495, connections: [] },
+        { id: 'in-osc12',      x: 0.8304333333, y: 0.495, connections: [] },
+        { id: 'in-invert-in',  x: 0.8643,       y: 0.495, connections: [] },
+        { id: 'out-ocs1',      x: 0.8981666667, y: 0.495, connections: [] },
+        { id: 'out-ocs2',      x: 0.9320333333, y: 0.495, connections: [] },
+        { id: 'out-ocs-mix',   x: 0.9659,       y: 0.495, connections: [] }
+    ],
+    //Faders examples (not related to Behringer Neutron)
+    faders: [
+        { 
+            id: "volume", 
+            x: 0.3, 
+            y: 0.3,
+            length: 120,           // Pixel length
+            direction: "vertical", // or "horizontal"
+            default: 0.5,          // 0-1 range
+            thickness: 15          // Optional (default: 15px)
+        },
+        { 
+            id: "volume-2", 
+            x: 0.5, 
+            y: 0.3,
+            length: 120,             // Pixel length
+            direction: "horizontal", // or "horizontal"
+            default: 0.2,            // 0-1 range
+            thickness: 15            // Optional (default: 15px)
+        }
+    ]
+```
+
+
+If you want to add, for example, knob, just add line after 'osc2-width':
+```javascript
+,//don't forget coma!
+ { id: 'new-osc',    x: 0.5,  y: 0.5, value: 0.5, minAngle: -90, maxAngle: 90 }
+```
+Knob described above will have id (name) 'new-osc', be located approx in the center of synth picture, have default value 0.5 and will be rotated from -90 to 90 degrees with 0 degree is directed up (relative to web page). It is possible to set minAngle greater than maxAngle and their sum can exceed 360 degrees.
+
+Buttons and jacks have similar logic with knobs. But jacks have additional stuff: 'in' and 'out' parts at the beginning of the name have special role: it is possible to connect any jack to any other jack, but if 'in' and 'out' pair is forming, then it is guaranteed that 'out' jack's hint will have additional destination line. And in preset 'out' jack will have connections, not 'in' (for in-out pairs).
+
+There are faders of two kinds: vertical and horizontal.
 
 ## TriliumNext Notes
 

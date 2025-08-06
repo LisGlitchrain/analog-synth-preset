@@ -35,7 +35,7 @@ class SynthPresetHandler extends HTMLElement
 
     getDefaultConfig()
     {
-        //SYNTH CONFIG (KNOBS, BUTTONS, JACKS)
+        //SYNTH CONFIG (KNOBS, BUTTONS, JACKS, FADERS)
         const ocsY = 0.576;
         const ocs1ParamX = 0.050;
         const ocs2ParamX = 0.1685;
@@ -110,6 +110,7 @@ class SynthPresetHandler extends HTMLElement
                 { id: 'srl-time',      x: column7X,    y: row1Y, value: 0.5, minAngle: -152, maxAngle: 152 },
                 { id: 'attenuator1',   x: column6X,    y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 },
                 { id: 'attenuator2',   x: column7X,    y: row0Y, value: 0.5, minAngle: -152, maxAngle: 152 }
+                //MODIFYING Add knobs configs here
             ],
             
             buttons: [
@@ -136,6 +137,7 @@ class SynthPresetHandler extends HTMLElement
                 { id: 'avd-osc2-shape-blend',        x: 0.15,  y: 0.97,   state: true  },
                 { id: 'avd-lfo-shape-blend',         x: 0.17,  y: 0.97,   state: true  },
                 { id: 'avd-poly-chain-mode',         x: 0.19,  y: 0.97,   state: false },
+                //MODIFYING Add buttons configs here
             ],
             
             jacks: [
@@ -202,27 +204,29 @@ class SynthPresetHandler extends HTMLElement
                 { id: 'out-sum1',      x: jackColumn4X, y: jackRow7Y, connections: [] },
                 { id: 'out-sum2',      x: jackColumn5X, y: jackRow7Y, connections: [] },
                 { id: 'out-assign',    x: jackColumn6X, y: jackRow7Y, connections: [] },
+                //MODIFYING Add jacks configs here
             ],
             //Faders examples
-            "faders": [
-            //     { 
-            //         "id": "volume", 
-            //         "x": 0.3, 
-            //         "y": 0.3,
-            //         "length": 120,          // Pixel length
-            //         "direction": "vertical", // or "horizontal"
-            //         "default": 0.5,         // 0-1 range
-            //         "thickness": 15         // Optional (default: 15px)
-            //     },
-            //     { 
-            //         "id": "volume-2", 
-            //         "x": 0.5, 
-            //         "y": 0.3,
-            //         "length": 120,          // Pixel length
-            //         "direction": "horizontal", // or "horizontal"
-            //         "default": 0.2,         // 0-1 range
-            //         "thickness": 15         // Optional (default: 15px)
-            //     }
+            faders: [
+                // { 
+                //     id: "volume", 
+                //     x: 0.3, 
+                //     y: 0.3,
+                //     length: 120,           // Pixel length
+                //     direction: "vertical", // or "horizontal"
+                //     default: 0.5,          // 0-1 range
+                //     thickness: 15          // Optional (default: 15px)
+                // },
+                // { 
+                //     id: "volume-2", 
+                //     x: 0.5, 
+                //     y: 0.3,
+                //     length: 120,             // Pixel length
+                //     direction: "horizontal", // or "horizontal"
+                //     default: 0.2,            // 0-1 range
+                //     thickness: 15            // Optional (default: 15px)
+                // }
+                //MODIFYING Add faders configs here
             ]
         };
     }
@@ -266,6 +270,7 @@ class SynthPresetHandler extends HTMLElement
             margin: 0 auto;
             border: 1px solid #444;
             background-color: #111;
+            //MODIFYING Change width and height above to match image size
 
             #synth-image {
                 width: 100%;
@@ -599,6 +604,7 @@ class SynthPresetHandler extends HTMLElement
         
         <div id="synth-container">
             <!-- Background image of the synthesizer -->
+            <!-- MODIFYING change image name if you want to use another image from file (and it has different name) -->
             <img id="synth-image" src="synth-background.jpg" alt="Synthesizer">
             <!-- Metadata -->
             <span id="preset-date" placeholder=""></span>  
